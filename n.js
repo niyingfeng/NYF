@@ -10,7 +10,6 @@
 		doc = global.document;
 
 	N.defined = function(id, deps, wrap){
-		
 	}
 
 		
