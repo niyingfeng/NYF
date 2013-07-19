@@ -9,7 +9,9 @@
     // 大对象
     var O_N = global.N, //原始的 N 对象or属性
         N = global.N = {},
-        doc = global.document;
+        doc = global.document,
+
+        userAgent = nagnavigator.userAgent;
 
     // 原型方法引用
     var ArrayProto = Array.prototype,
@@ -24,12 +26,18 @@
     // 
     var arrayType = "[object Array]",
         functionType = "[object Function]",
-        objectType = "[object Object]";
+        objectType = "[object Object]",
+
+        regmsie = /(MSIE)([\w.]+)/,
+        regwebkit = /(AppleWebKit)[ \/]([\w.]+)/,
+        regmsie = /(Opera)([\w.]+)/,
+        regmsie = /(Gecko\/)([\w.]+)/;
 
 
 
     var Model = N.model = {},
-        modelMap = {};
+        modelLoaded = {},   // 已经加载的模块
+        modelMap = {};      // 已经执行的模块脚本    
 
     /** 模块定义 define
     *   处理一下 2 种情况 参数
@@ -42,9 +50,7 @@
     *   @private
     */
     function define(name, deps, wrap){
-        var expLen, i, len,
-            exports = [],
-            model = modelMap[name];
+        var model = modelLoaded[name];
 
         if( model ){
             return model;
@@ -55,21 +61,36 @@
             deps = [];     
         }
 
-        for (i=0, len=deps.length; i<len ; i++) {
-            if( modelMap[deps[i]].export ){
-                exports.push( modelMap[deps[i]].export );
-            }else{
-                // 该处需要加载所需模块文件
-            }
-        };
-
         model = {
             name : name,
             deps : deps,
-            wrap : wrap,
-            export : wrap.apply(this, exports)
+            wrap : wrap
         }
 
+        modelLoaded[name] = model;
+        return model;
+    }
+
+    function execute( name ){
+        var mExports = [],
+            modelload = modelLoaded[name],
+            model = modelMap[name];
+
+        if( modelload ){ // 当模块文件还未加载的时候
+            // 需要加载模块文件 loadscript
+            // 应使用回调 加载完毕后 继续execute方法
+            // return loadscript( modelUrl(name), execute(name) );
+            // return;
+        }else if( model ){
+            return model;
+        }else{
+            each( modelload.deps, function(dep){
+                mExports.push( execute( dep ) );
+            });
+            model = modelload.wrap.apply( this, mExports );
+        }
+
+        modelMap[name] = model;
         return model;
     }
 
@@ -86,11 +107,11 @@
     */
 
     function isArray(arr){
-        return (toString.call(arr) === arrayType);
+        return toString.call(arr) === arrayType;
     }
 
     function isFunction(func){
-        return (toString.call(func) === functionType);
+        return toString.call(func) === functionType;
     }
 
     function type(obj){
@@ -157,8 +178,36 @@
     N.each = each;
     N.map = map;
 
+    function createNode( tagName, attrs ){
+        var node = doc.createElement(tagName);
+        each(attrs, function(value, attr){
+            node.setAttribute(attr, value);
+        })
+        return node;
+    }
+
     function loadScript(url, callback){
+        var node = createNode("js"),
+            head = loadScript.head = loadScript.head || doc.getElementsByTagName("head")[0];
+
+        if( regmsie.test(userAgent) ){
+            node.onreadystatechange = function(){
+                if(/complete|loaded/.test(node.readyState)){
+                    node.onreadystatechange = null;
+                    callback();
+                }
+            }
+        }else{
+            node.loaded = function(){
+                callback();
+            }
+        }
         
+        node.async = true;
+        node.type = "text/javascript";
+        node.src = url;
+
+        head.inserBefore(node, head.firstChild);
     }
         
 })(window);
