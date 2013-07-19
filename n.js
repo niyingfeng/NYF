@@ -28,6 +28,7 @@
         functionType = "[object Function]",
         objectType = "[object Object]",
 
+        // 简单的浏览器UA检测正则
         regmsie = /(MSIE)([\w.]+)/,
         regwebkit = /(AppleWebKit)[ \/]([\w.]+)/,
         regmsie = /(Opera)([\w.]+)/,
@@ -47,7 +48,7 @@
     *   @param {Array} deps 可选 依赖关系模块
     *   @param {Function} wrap 必选 模块函数实现
     *   @return {Object} 返回模块信息对象
-    *   @private
+    *   
     */
     function define(name, deps, wrap){
         var model = modelLoaded[name];
@@ -71,6 +72,15 @@
         return model;
     }
 
+    // 
+    /** 模块预执行 execute
+    *   对于已经加载的模块在依赖条件下将其执行，返回执行后的对象或者方法
+    *  
+    *   @method execute
+    *   @param {String} name 必选 模块名称
+    *   @return {Object} 返回模块执行完毕对象
+    *   
+    */
     function execute( name ){
         var mExports = [],
             modelload = modelLoaded[name],
@@ -100,8 +110,10 @@
 
 
     /** 底层基础工具函数
-    *
-    *
+    *   isArray  isFunction type  检测目标类型
+    *   each map  迭代循环
+    *   createNode 创建node对象
+    *   loadScript 加载脚本文件
     *
     *
     */
@@ -202,7 +214,7 @@
                 callback();
             }
         }
-        
+
         node.async = true;
         node.type = "text/javascript";
         node.src = url;
