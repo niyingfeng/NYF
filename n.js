@@ -11,7 +11,7 @@
         N = global.N = {},
         doc = global.document,
 
-        userAgent = nagnavigator.userAgent;
+        userAgent = navigator.userAgent;
 
     // 原型方法引用
     var ArrayProto = Array.prototype,
@@ -29,7 +29,7 @@
         objectType = "[object Object]",
 
         // 简单的浏览器UA检测正则
-        regmsie = /(MSIE)([\w.]+)/,
+        regmsie = /(MSIE) ([\w.]+)/,
         regwebkit = /(AppleWebKit)[ \/]([\w.]+)/,
         regmsie = /(Opera)([\w.]+)/,
         regmsie = /(Gecko\/)([\w.]+)/;
@@ -104,7 +104,8 @@
         return model;
     }
 
-    function require(){
+    function require( name ){
+        return execute(name);
     }
 
 
@@ -199,7 +200,7 @@
     }
 
     function loadScript(url, callback){
-        var node = createNode("js"),
+        var node = createNode("script",{async:true,type:"text/javascript"}),
             head = loadScript.head = loadScript.head || doc.getElementsByTagName("head")[0];
 
         if( regmsie.test(userAgent) ){
@@ -210,16 +211,27 @@
                 }
             }
         }else{
-            node.loaded = function(){
+            node.onload = function(){
                 callback();
             }
         }
 
-        node.async = true;
-        node.type = "text/javascript";
         node.src = url;
 
-        head.inserBefore(node, head.firstChild);
+        head.appendChild(node);
     }
+
+    // 由于火狐浏览器不支持link的onload事件，所以做回调较为复杂，需要轮询检测（lazyload中学到）
+    // 并且对于css的话 回调函数意义不大，只提供异步加载功能
+    function loadCss(url){
+        var node = createNode("link",{rel:"stylesheet",type:"text/css"}),
+            head = loadCss.head = loadCss.head || doc.getElementsByTagName("head")[0];
+
+        node.href = url;
+        head.appendChild(node);
+    }
+
+    N.loadScript = loadScript;
+    N.loadCss = loadCss;
         
 })(window);
