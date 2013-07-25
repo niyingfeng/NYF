@@ -36,9 +36,9 @@
 
 
 
-    var Model = N.model = {},
-        modelLoaded = {},   // 已经加载的模块
-        modelMap = {};      // 已经执行的模块脚本    
+    var Model, // 公共接口对象（公共接口集） 
+        modelLoaded = {},     // 已经加载的模块（加载的未执行的模块信息集）
+        modelMap = {};        // 已经执行的模块脚本返回的对象（模块结果集）    
 
     /** 模块定义 define
     *   处理一下 2 种情况 参数
@@ -86,7 +86,7 @@
             modelload = modelLoaded[name],
             model = modelMap[name];
 
-        if( modelload ){ // 当模块文件还未加载的时候
+        if( modelload === undefined ){ // 当模块文件还未加载的时候
             // 需要加载模块文件 loadscript
             // 应使用回调 加载完毕后 继续execute方法
             // return loadscript( modelUrl(name), execute(name) );
@@ -106,6 +106,12 @@
 
     function require( name ){
         return execute(name);
+    }
+
+    N.model = Model = {
+        define : define,
+        require : require,
+        execute : execute
     }
 
 
