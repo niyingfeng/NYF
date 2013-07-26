@@ -36,6 +36,89 @@
 
 
 
+    /*********************************扩展继承*************************************/
+    /** 对象扩展 expend
+    *  
+    *   @method expend
+    *   @param {String} receiver 可选 扩展的目标对象 如果无 则扩展到外围为对象（一般为 N）
+    *   @param {obj} obj 必选 要扩展到目标对象的对象数据
+    *   @param {boolean} 可选 主要是标识是否需要深度拷贝 默认为true
+    *
+    *   @return {Object} 返回目标对象
+    *   
+    */
+    function expend(receiver, obj){
+        var args = slice.call(arguments), key,
+            deep = (type(args[args.length-1]) === "boolean")?args.pop():true;
+
+        obj = args[args.length-1];
+
+        if(args.length == 1){
+            receiver = this;
+        }
+        for( key in obj ){
+            if(hasOwn.call(obj, key)){
+                if(!hasOwn.call(receiver,key)){
+                    if( deep && type(obj[key])==="object" ){
+                        receiver[key]={};
+                        expend(receiver[key], obj[key]);
+                    }else{
+                        receiver[key] = obj[key];
+                    }
+                }else{                    
+                    throw new Error("sorry "+key+" is already in the receiver object");
+                }
+            }
+        }
+        return receiver;
+    }
+
+
+    /** 对象扩展 mix
+    *   简单来说是属于expend的简单形式，不进行深度拷贝 并且目标对象为必选
+    *   @method mix
+    *   @param {String} target 必选 扩展的目标对象
+    *   @param {obj} obj 必选（可有多个） 要扩展到目标对象的对象数据
+    *   
+    *   @return {Object} 返回目标对象
+    *   
+    */
+    function mix(target, obj){
+        var args = slice.call(arguments), i=1, len=args.length, key;
+        for(;i<len;i++){
+            obj = args[i];
+            for(key in obj){
+                if(hasOwn.call(obj, key)){
+                    if(!hasOwn.call(target, key)){
+                        target[key] = obj[key];
+                    }else{
+                        throw new Error("sorry "+key+" is already in the receiver object");
+                    }
+                }
+            }
+        }
+    }
+
+    // 用于使用来继承扩展对象
+    var createObject = (function(){
+        function F(){};
+        return function(obj){
+            F.prototype = obj;
+            F.prototype.constructor = obj;
+            return new F();     
+        }
+    }());
+
+    mix(N, {
+        expend : expend,
+        mix : mix,
+        createObject : createObject
+    });
+
+
+
+    /**************************模块方面的***************************************/
+
     var Model, // 公共接口对象（公共接口集） 
         modelLoaded = {},     // 已经加载的模块（加载的未执行的模块信息集）
         modelMap = {};        // 已经执行的模块脚本返回的对象（模块结果集）    
@@ -108,16 +191,24 @@
         return execute(name);
     }
 
-    N.model = Model = {
+    Model = {
         define : define,
         require : require,
         execute : execute
     }
 
+    mix(N, {
+        define : define,
+        require : require,
+        execute : execute
+    })
 
 
-    /** 底层基础工具函数
-    *   isArray  isFunction type  检测目标类型
+
+
+
+    /************************** 底层基础工具函数 **************************************/
+    /*   isArray  isFunction type  检测目标类型
     *   each map  迭代循环
     *   createNode 创建node对象
     *   loadScript 加载脚本文件
@@ -139,9 +230,12 @@
                 typeof obj);
     }
 
-    N.isArray = isArray;
-    N.isFunction = isFunction;
-    N.type = type;
+    mix(N, {
+        isArray : isArray,
+        isFunction : isFunction,
+        type : type
+    });
+
 
 
     function each( array, iterator, context ){
@@ -194,11 +288,14 @@
         return newArr;
     }
 
-    N.each = each;
-    N.map = map;
+    mix(N, {
+        each : each,
+        map : map
+    });
 
     function createNode( tagName, attrs ){
         var node = doc.createElement(tagName);
+        attrs = attrs || {};
         each(attrs, function(value, attr){
             node.setAttribute(attr, value);
         })
@@ -237,7 +334,10 @@
         head.appendChild(node);
     }
 
-    N.loadScript = loadScript;
-    N.loadCss = loadCss;
+    mix(N, {
+        createNode : createNode,
+        loadScript : loadScript,
+        loadCss : loadCss
+    });
         
 })(window);
