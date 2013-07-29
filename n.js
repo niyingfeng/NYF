@@ -201,9 +201,7 @@
         define : define,
         require : require,
         execute : execute
-    })
-
-
+    });
 
 
 
