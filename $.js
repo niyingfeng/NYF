@@ -10,12 +10,15 @@ N.define("$",function(){
         hasOwn = Object.prototype.hasOwnProperty,
         slice = Array.prototype.slice,
         w = window,
-        d = w.document;
+        d = w.document,
+
+        each = N.each;
 
     function $(str,root){   // $(".classname") & $("#id") & $("#id1,#id2")
         var elements = [],  // , 分割后的数组
             ele_len = 0,  // 数组长度
-            reg_spl = /\s*,\s*/, // 截取  ，
+            reg_spl = /\s*,\s*/, // 截取 
+            reg_white = /^\s+|\s+$/,
             dom_obj = {}, // dom 对象
             ret = [],     // 返回的dom对象
             root = root || document,
@@ -28,20 +31,21 @@ N.define("$",function(){
             if(root.querySelectorAll){
                 return slice.call(root.querySelectorAll(str));  //使用内置方法
             }else{
+                str = str.replace(reg_white, "");
                 return getDomObj(str,root);
             }
-            
-        }  // 单个id的情况
+        }  // 单个情况
 
         elements = str.split(reg_spl);
         ele_len = elements.length;
         for(i = 0;i<ele_len;i++){
             element = elements[i];
 
-            if(false&&root.querySelectorAll){
-                dom_obj = root.querySelectorAll(element);
+            if(root.querySelectorAll){
+                dom_obj = slice.call(root.querySelectorAll(element));
             }else{
-                dom_obj = slice.call(_$_getDom(element,root));
+                str = str.replace(reg_white, "");
+                dom_obj = slice.call(getDomObj(element,root));
             }
             if(dom_obj){ ret = ret.concat(dom_obj); }
         }
@@ -49,17 +53,45 @@ N.define("$",function(){
     }
 
     function getDomObj(str, root){
-    }
-
-    function getById(id){
+        if(root.querySelectorAll){
+                return slice.call(root.querySelectorAll(str));  //使用内置方法
+        }else{
+            if(str.indexOf("#")){
+                str = str.slice(1);    
+                return [d.getElementById(str)];
+            }else if(str.indexOf(".")){
+                str = str.slice(1);    
+                return getByClass(str,root);
+            }else{
+                return slice.call(root.getElementsByTagName(str));
+            }
+        } 
     }
 
     function getByClass(classname){
+        var elements, doms = [],  len;
+        if(root.getElementsByClassName){
+            return slice.call(root.getElementsByClassName(classname))
+        }else{
+            elements = root.getElementsByTagName("*");
+            len = elements.length;
+
+            each(elements, function(ele){
+                if((" " + ele.classname + " ").indexof(" "+str+" ") !== -1){
+                    doms.push(ele);
+                }
+            });
+            
+        }
     }
 
     // 重点为这个方法，对于在候选集中进行过滤
     //function filter(target, factor, str){}
 
     // 在一个选择器表达式中 最优化的选出候选集
+
+    return function(str, root){
+        return $(str,root);
+    }
 
 });
