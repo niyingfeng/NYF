@@ -185,9 +185,12 @@
             // 需要加载模块文件 loadscript
             // 应使用回调 加载完毕后 继续execute方法
             // return loadscript( modelUrl(name), execute(name) );
-            return loadScript(url, function(){ 
+            console.log(name+" 文件构建有误，重新加载文件！");
+            loadScript(url, function(){ 
                 execute( name ); 
+                console.log(name+" 文件加载运行完成！"); 
             });
+
         }else if( model ){
             return model;
         }else{
@@ -354,7 +357,6 @@
         }
 
         node.src = url;
-
         head.appendChild(node);
     }
 
@@ -373,6 +375,8 @@
         loadScript : loadScript,
         loadCss : loadCss
     });
+
+
         
 })(window);
 
