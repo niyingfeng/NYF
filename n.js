@@ -9,9 +9,11 @@
     // 大对象
     var O_N = global.N, //原始的 N 对象or属性
         N = global.N = {},
-        doc = global.document,
 
-        userAgent = navigator.userAgent;
+        doc = global.document,
+        userAgent = navigator.userAgent,
+        host = location.protocol,
+        absUrl = location.origin;
 
     // 原型方法引用
     var ArrayProto = Array.prototype,
@@ -23,7 +25,7 @@
     // 正则集中
     var typeReg = /\[object (\w+)\]/;
     
-    // 
+    // 一些常用的常量
     var arrayType = "[object Array]",
         functionType = "[object Function]",
         objectType = "[object Object]",
@@ -32,7 +34,10 @@
         regmsie = /(MSIE) ([\w.]+)/,
         regwebkit = /(AppleWebKit)[ \/]([\w.]+)/,
         regmsie = /(Opera)([\w.]+)/,
-        regmsie = /(Gecko\/)([\w.]+)/;
+        regmsie = /(Gecko\/)([\w.]+)/,
+
+        // 处理模块id 进行规范化处理正则
+        regrname = /(?:\.?\/)?([\w\W]*\/)?([\w\W]*)/;
 
 
 
@@ -134,7 +139,9 @@
     *   
     */
     function define(name, deps, wrap){
-        var model = modelLoaded[name];
+        var modelInfo = dealname(name),
+            name = modelInfo["modelName"],
+            model = modelLoaded[name];
 
         if( model ){
             return model;
@@ -166,6 +173,11 @@
     */
     function execute( name ){
         var mExports = [],
+
+            modelInfo = dealname(name),
+            name = modelInfo["modelName"],
+            url = modelInfo["modelUrl"],
+
             modelload = modelLoaded[name],
             model = modelMap[name];
 
@@ -173,7 +185,9 @@
             // 需要加载模块文件 loadscript
             // 应使用回调 加载完毕后 继续execute方法
             // return loadscript( modelUrl(name), execute(name) );
-            // return;
+            return loadScript(url, function(){ 
+                execute( name ); 
+            });
         }else if( model ){
             return model;
         }else{
@@ -197,10 +211,32 @@
         execute : execute
     }
 
+    /** 规范化模块名 realname
+    *   对于有地址信息的模块，提取出规范的模块名称
+    *  
+    *   @method realname
+    *   @param {String} name 必选 模块名称id
+    *   @return {Object} 返回规范的模块信息的对象
+    *   
+    */
+    function dealname( name ){
+        var infoArr = regrname.exec(name);
+        return{
+            modelName : infoArr[2],
+            modelUrl : absUrl + (infoArr[1]===undefined ? "/" : "/"+infoArr[1]) + infoArr[2] + ".js",
+        }
+    }
+
+    function setAbsUrl( url ){
+        absUrl =/http|ftp|file/.test(url) ? url : host + "//" + url;
+    }
+
     mix(N, {
         define : define,
         require : require,
-        execute : execute
+        execute : execute,
+        dealname : dealname,
+        setAbsUrl : setAbsUrl
     });
 
 
@@ -339,3 +375,18 @@
     });
         
 })(window);
+
+
+/********************简单的使用文档************************
+基础工具：
+isArray, isFunction, type, each, map, creatNode, loadScript, loadCss
+
+
+对象扩展对象方法
+extend, mix, creatObject
+
+
+模块化方法
+define, require, execute, dealname, setAbsUrl 
+
+************************************************************/
