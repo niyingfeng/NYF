@@ -42,9 +42,9 @@
 
 
     /*********************************扩展继承*************************************/
-    /** 对象扩展 expend
+    /** 对象扩展 extend
     *  
-    *   @method expend
+    *   @method extend
     *   @param {String} receiver 可选 扩展的目标对象 如果无 则扩展到外围为对象（一般为 N）
     *   @param {obj} obj 必选 要扩展到目标对象的对象数据
     *   @param {boolean} 可选 主要是标识是否需要深度拷贝 默认为true
@@ -52,7 +52,7 @@
     *   @return {Object} 返回目标对象
     *   
     */
-    function expend(receiver, obj){
+    function extend(receiver, obj){
         var args = slice.call(arguments), key,
             deep = (type(args[args.length-1]) === "boolean")?args.pop():true;
 
@@ -66,7 +66,7 @@
                 if(!hasOwn.call(receiver,key)){
                     if( deep && type(obj[key])==="object" ){
                         receiver[key]={};
-                        expend(receiver[key], obj[key]);
+                        extend(receiver[key], obj[key]);
                     }else{
                         receiver[key] = obj[key];
                     }
@@ -80,7 +80,7 @@
 
 
     /** 对象扩展 mix
-    *   简单来说是属于expend的简单形式，不进行深度拷贝 并且目标对象为必选
+    *   简单来说是属于extend的简单形式，不进行深度拷贝 并且目标对象为必选
     *   @method mix
     *   @param {String} target 必选 扩展的目标对象
     *   @param {obj} obj 必选（可有多个） 要扩展到目标对象的对象数据
@@ -115,7 +115,7 @@
     }());
 
     mix(N, {
-        expend : expend,
+        extend : extend,
         mix : mix,
         createObject : createObject
     });
