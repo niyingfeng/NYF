@@ -6,6 +6,8 @@
 // 之后需要扩展实现 简单的层级查找 $("#id .classname")
 
 N.define("$",function(){
+
+    'use strict';
     var toString = Object.prototype.toString,
         hasOwn = Object.prototype.hasOwnProperty,
         slice = Array.prototype.slice,
@@ -14,6 +16,17 @@ N.define("$",function(){
 
         each = N.each;
 
+
+    /** 微型选择器 $
+    *  
+    *   @method $ 目前只支持简单的复合选着 如$("#id, .classname") & $("#id") & $("#id1,#id2")
+    *           暂不支持层级选着 如 $("#id tag")
+    *   @param {String} str 必选，选择字符串
+    *   @param {Object} obj 可选 选择节点的区域
+    *   
+    *   @return {Array} 返回目标DOM对象数组
+    *   
+    */
     function $(str,root){   // $(".classname") & $("#id") & $("#id1,#id2")
         var elements = [],  // , 分割后的数组
             ele_len = 0,  // 数组长度

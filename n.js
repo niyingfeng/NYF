@@ -9,6 +9,7 @@
     // 大对象
     var O_N = global.N, //原始的 N 对象or属性
         N = global.N = {},
+        NID = global.NID = "N"+ (+new Date()),
 
         doc = global.document,
         userAgent = navigator.userAgent,
