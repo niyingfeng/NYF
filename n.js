@@ -65,7 +65,7 @@
         for( key in obj ){
             if(hasOwn.call(obj, key)){
                 if(!hasOwn.call(receiver,key)){
-                    if( deep && type(obj[key])==="object" ){
+                    if( deep && (type(obj[key])==="object" || type(obj[key])==="array")){
                         receiver[key]={};
                         extend(receiver[key], obj[key]);
                     }else{
