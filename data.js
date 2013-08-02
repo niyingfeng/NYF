@@ -67,4 +67,4 @@ N.define( "data", function(){
         data : data,
         removeData : removeData
     }
-} );
+});
