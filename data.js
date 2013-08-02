@@ -3,7 +3,7 @@
 
 N.define( "data", function(){
     var cache = [],
-        uid = 0,
+        uid = -1,
         NID = N.NID,
         type = N.type,
         extend = N.extend;
@@ -13,9 +13,18 @@ N.define( "data", function(){
     *                普通对象依旧不做处理
     */
     function data( obj, key, value ){
-        var uNumber = obj[NID] || (obj[NID]=uid++),
-            dObject = cache[uNumber] || (cache[uNumber]={});
+        
         if(obj.nodeType){
+            var uNumber = (obj[NID] !== undefined) ? obj[NID] : (obj[NID] = ++uid) ,
+            dObject = cache[uNumber] || (cache[uNumber]={});
+
+            /*if(obj[NID]){
+                uNumber = obj[NID];
+            }else{
+                uNumber = obj[NID] = ++uid;
+                cache[uNumber]={}
+            }*/
+
             if(type(value) === "undefined"){
                 return dObject[key];
             }else if(type(value) === "object" || type(value) === "array") {
@@ -38,10 +47,19 @@ N.define( "data", function(){
     }
 
     function removeData( obj, key ){
+        var uNumber = obj[NID];
+        
         if(obj.nodeType){
-
-        }else{
             
+            if(uNumber === undefined) return;
+
+            if(key){
+                delete cache[uNumber][key];
+            }else{
+                cache[uNumber] = undefined;
+            }
+        }else{
+            delete obj[key];
         }
     }
 
