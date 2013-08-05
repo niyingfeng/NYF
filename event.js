@@ -2,17 +2,35 @@
 
 N.define("event",["data"],function(data){
 
-    function addEvent(){}
+    var doc = document;
+
+    var addEvent = (function( target, name, handler ){
+        if( doc.addEventListener ){
+            return function( target, name, handler ){
+                return target.addEventListener(name, handler, false)
+            } 
+        }else if( doc.attachEvent ){
+            return function( target, name, handler ){
+                return target.attachEvent("on"+name, handler);
+            }
+        }else{
+            return function( target, name, handler ){
+                return target["on"+name] = handler;
+            }
+        }
+    })();
+
+    var removeEvent = function( target, name, handler ){}
    
-    function on( obj, name, callback ){
+    function on( target, name, callback ){
         data.data( obj, name, callback );
     }
 
-    function off( obj, name, callback ){
-        data.removeData( obj, name, callback );
+    function off( target, name, callback ){
+        data.removeData( target, name, callback );
     }
 
-    function emit( obj, name ){}
+    function emit( target, name ){}
 
 
     return {
