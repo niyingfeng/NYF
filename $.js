@@ -8,9 +8,11 @@
 N.define("$",function(){
 
     'use strict';
-    var toString = Object.prototype.toString,
-        hasOwn = Object.prototype.hasOwnProperty,
-        slice = Array.prototype.slice,
+    var objPro = Object.prototype,
+        arrPro = Array.prototype,
+        toString = objPro.toString,
+        hasOwn = objPro.hasOwnProperty,
+        slice = arrPro.slice,
         w = window,
         d = w.document,
 
@@ -27,14 +29,14 @@ N.define("$",function(){
     *   @return {Array} 返回目标DOM对象数组
     *   
     */
-    function $(str,root){   // $(".classname") & $("#id") & $("#id1,#id2")
-        var elements = [],  // , 分割后的数组
-            ele_len = 0,  // 数组长度
-            reg_spl = /\s*,\s*/, // 截取 
+    function $(str,root){                   // $(".classname") & $("#id") & $("#id1,#id2")
+        var elements = [],                  // , 分割后的数组
+            ele_len = 0,                    // 数组长度
+            reg_spl = /\s*,\s*/,            // 截取 
             reg_white = /^\s+|\s+$/,
-            dom_obj = {}, // dom 对象
-            ret = [],     // 返回的dom对象
-            root = root || document,
+            dom_obj = {},                   // dom 对象
+            ret = [],                       // 返回的dom对象
+            root = root || d,
             element,i,name;    
 
         if(str.nodeType){ return [str]; }
@@ -51,17 +53,20 @@ N.define("$",function(){
 
         elements = str.split(reg_spl);
         ele_len = elements.length;
-        for(i = 0;i<ele_len;i++){
-            element = elements[i];
 
-            if(root.querySelectorAll){
-                dom_obj = slice.call(root.querySelectorAll(element));
-            }else{
-                str = str.replace(reg_white, "");
-                dom_obj = slice.call(getDomObj(element,root));
+
+        if(root.querySelectorAll){
+            for(i = 0; i<ele_len; i++){
+                dom_obj = slice.call(root.querySelectorAll(element[i]));
+                ret = ret.concat(dom_obj);
             }
-            if(dom_obj){ ret = ret.concat(dom_obj); }
+        }else{
+            for(i = 0; i<ele_len; i++){
+                dom_obj = slice.call(getDomObj(elements[i],root));
+                ret = ret.concat(dom_obj); 
+            }
         }
+    
         return ret;
     }
 
