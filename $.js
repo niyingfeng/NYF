@@ -42,29 +42,17 @@ N.define("$",function(){
         if(str.nodeType){ return [str]; }
         if(typeof str !== "string"){ return []; } //不为string返回空数组
 
+        // 单个情况
         if(str.indexOf(",") === -1){
-            if(root.querySelectorAll){
-                return slice.call(root.querySelectorAll(str));  //使用内置方法
-            }else{
-                str = str.replace(reg_white, "");
-                return getDomObj(str,root);
-            }
-        }  // 单个情况
+            return getDomObj(str,root);
+        }  
 
         elements = str.split(reg_spl);
         ele_len = elements.length;
 
-
-        if(root.querySelectorAll){
-            for(i = 0; i<ele_len; i++){
-                dom_obj = slice.call(root.querySelectorAll(element[i]));
-                ret = ret.concat(dom_obj);
-            }
-        }else{
-            for(i = 0; i<ele_len; i++){
-                dom_obj = slice.call(getDomObj(elements[i],root));
-                ret = ret.concat(dom_obj); 
-            }
+        for(i = 0; i<ele_len; i++){
+            dom_obj = getDomObj(elements[i],root);
+            ret = ret.concat(dom_obj);
         }
     
         return ret;
