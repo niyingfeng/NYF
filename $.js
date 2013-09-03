@@ -30,7 +30,7 @@ N.define("$",function(){
     *   
     */
     function $(str,root){                   // $(".classname") & $("#id") & $("#id1,#id2")
-        var elements = [],                  // , 分割后的数组
+        var elements = [],                  // 分割后的数组
             ele_len = 0,                    // 数组长度
             reg_spl = /\s*,\s*/,            // 截取 
             reg_white = /^\s+|\s+$/,
@@ -74,7 +74,7 @@ N.define("$",function(){
         } 
     }
 
-    function getByClass(classname){
+    function getByClass(classname, root){
         var elements, doms = [],  len;
         if(root.getElementsByClassName){
             return slice.call(root.getElementsByClassName(classname))
@@ -87,7 +87,7 @@ N.define("$",function(){
                     doms.push(ele);
                 }
             });
-            
+            return doms;
         }
     }
 
