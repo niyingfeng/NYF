@@ -39,8 +39,11 @@ N.define("$",function(){
             root = root || d,
             element,i,name;    
 
+        // 参数为DOM对象
         if(str.nodeType){ return [str]; }
-        if(typeof str !== "string"){ return []; } //不为string返回空数组
+
+        //不为string返回空数组
+        if(typeof str !== "string"){ return []; } 
 
         // 单个情况
         if(str.indexOf(",") === -1){

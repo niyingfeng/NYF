@@ -13,10 +13,13 @@ N.define( "data", function(){
     *                普通对象依旧不做处理
     */
     function data( obj, key, value ){
-        
+        var uNumber, dObject;
         if(obj.nodeType){
-            var uNumber = (obj[NID] !== undefined) ? obj[NID] : (obj[NID] = ++uid) ,
+            uNumber = (obj[NID] !== undefined) ? obj[NID] : (obj[NID] = ++uid) ;
             dObject = cache[uNumber] || (cache[uNumber]={});
+        }else{
+            dObject = obj;
+        }
 
             /*if(obj[NID]){
                 uNumber = obj[NID];
@@ -25,24 +28,15 @@ N.define( "data", function(){
                 cache[uNumber]={}
             }*/
 
-            if(type(value) === "undefined"){
-                return dObject[key];
-            }else if(type(value) === "object" || type(value) === "array") {
-                dObject[key] = {};
-                extend(dObject[key], value)
-            }else{
-                dObject[key] = value;
-            }
+        if(type(value) === "undefined"){
+            return dObject[key];
+        }else if(type(value) === "object" || type(value) === "array") {  // 这边貌似还是不能放在一起
+            dObject[key] = {};
+            extend(dObject[key], value);
         }else{
-            if(type(value) === "undefined"){
-                return obj[key];
-            }else if(type(value) === "object" || type(value) === "array") {
-                obj[key] = {};
-                extend(obj[key], value)
-            }else{
-                obj[key] = value;
-            }
+            dObject[key] = value;
         }
+       
 
     }
 
