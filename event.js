@@ -42,9 +42,6 @@ N.define("event",["data"],function(data){
         events.push( callback );
         data.data( target, name, events);
 
-        addEvent( target, name, function(){
-            emit(target, name);
-        });
     }
 
     function off( target, name, callback ){
