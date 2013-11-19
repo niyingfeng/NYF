@@ -20,10 +20,30 @@ N.define( "cookie", function(){
 
         var secure = options.secure ? ";secure" : "";
 
-        document.cookie = encode(name) + "=" +encode(val) + expires + path + domain + secure;`
+        document.cookie = encode(name) + "=" +encode(val) + expires + path + domain + secure;
+
+        return encode(name) + "=" +encode(val);
     }
 
-    function getCookie( name ){}
+    function getCookie( name ){
+        var i, len, pair,
+            cookieStr = doc.cookie,
+            pairs = cookieStr.split(/;\s?/i);
+
+        for(i=0, len=pairs.length; i<len; i++){
+            pair = pairs[i].split("=");
+            
+            if( pair.length !== 2 ) continue;
+
+            if( pair[0] === encode(name) ){
+
+                return decodeURIComponent(pair[1]);  
+
+            }
+            return "";
+        }
+
+    }
 
     function encode(str){
         return (str+"").replace(/[,;"'\\=\s%]/g,function( v ){
@@ -31,8 +51,7 @@ N.define( "cookie", function(){
         });
     }
 
-
-    function cookie( name, val, options ){
+    return function( name, val, options ){
         if( !name ) return;
 
         if( val === undefined ){
@@ -40,8 +59,6 @@ N.define( "cookie", function(){
         }else{
             return setCookie( name, val, options );
         }
-    }
-
-    return cookie ;
+    };
 
 });
