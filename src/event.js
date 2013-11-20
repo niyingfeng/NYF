@@ -294,7 +294,7 @@ N.define("event",["data"],function(data){
 
     }
 
-    var eutils = new eutils();
+    var eutils = new eUtils();
 
     return eutils;
 

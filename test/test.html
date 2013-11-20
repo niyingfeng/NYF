@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 
-<script src="build/n.min.js"></script>
+<script src="../build/n.dev.js"></script>
 
 </head>
 <body>
@@ -11,12 +11,13 @@
     <div><ul><li>a</li><li>b</li><li>c</li><li>d</li><li>e</li></ul></div>
 TEST
 <script type="text/javascript">
-N.setAbsUrl("file:///C:/Users/wei/Documents/GitHub/NYF")
+
 var $ = N.require("$")
 var data = N.require("data")
 var cookie = N.require("cookie")
 var li = $("li")[0]
 data.data(li, "a", "aaa")
+console.log(data.data(li, "a"))
 </script>
 </body>
 </html>
