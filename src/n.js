@@ -19,9 +19,13 @@
     // 原型方法引用
     var ArrayProto = Array.prototype,
         ObjectProto = Object.prototype,
+        StringProto = String.prototype,
         toString = ObjectProto.toString,
         hasOwn = ObjectProto.hasOwnProperty,
-        slice = ArrayProto.slice;
+        slice = ArrayProto.slice,
+        trimFunc = StringProto.trim,
+        ltrimFunc = StringProto.trimLeft,
+        rtrimFunc = StringProto.trimRight;
 
     // 正则集中
     var typeReg = /\[object (\w+)\]/;
@@ -326,9 +330,40 @@
         return newArr;
     }
 
+    function filter( array, iterator, context ){
+        var value,i,len,newArr,
+            filter = ArrayProto.filter;
+
+        context = context||this;
+
+        if(array == null) return;
+
+        if(filter && array.filter === filter){
+            return array.filter(iterator, context);
+        }else if( isArray(array) ){
+            newArr = [];
+            for(i=0, len=array.length; i<len; i++){
+                if( iterator.call(context, array[i], i, array) ){
+                    newArr.push( array[i] );
+                }          
+            }
+        }else{
+            newArr = {};
+            for(var key in array){
+                if(hasOwn.call(array, key)){
+                    if( iterator.call(context, array[key], key, array) ){
+                        newArr[key] = array[key];
+                    }
+                }
+            }
+        }
+        return newArr;
+    }
+
     mix(N, {
         each : each,
-        map : map
+        map : map,
+        filter : filter
     });
 
     function createNode( tagName, attrs ){
@@ -375,6 +410,25 @@
         createNode : createNode,
         loadScript : loadScript,
         loadCss : loadCss
+    });
+
+
+    var trim, ltrim, rtrim;
+
+    if( trimFunc ){
+        trim = function( str ){ return str.trim(); };
+        ltrim = function( str ){ return str.trimLeft(); }; 
+        rtrim = function( str ){ return str.trimRight(); };
+    }else{
+        trim = function( str ){ return str.rplace(/^\s+|\s+$/g, '') };
+        ltrim = function( str ){ return str.rplace(/^\s+/g, '') }; 
+        rtrim = function( str ){ return str.rplace(/\s+$/g, '') };
+    }
+
+    mix(N, {
+        trim : trim,
+        ltrim : ltrim,
+        rtrim : rtrim
     });
 
 
