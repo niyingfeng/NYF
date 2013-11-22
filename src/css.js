@@ -4,8 +4,7 @@
 // addClass removeClass
 
 N.define( "css", function(){
-    var trim = N.trim,
-    ;
+    var trim = N.trim;
 
     function dealClass( classStr ){
         var classesName = [],
