@@ -4,7 +4,7 @@
 // addClass removeClass
 // toggle
 
-N.define( "css", ["arrayUtil.js"] function( arrayUtil ){
+N.define( "css", ["arrayUtil"] function( arrayUtil ){
     var trim = N.trim,
         filter = N.filter,
         map = N.map,
