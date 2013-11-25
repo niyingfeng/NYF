@@ -52,4 +52,9 @@ N.define("arrayUtil", function(){
             shuffled[random] = item;
         } );
     }
+
+    return {
+        dealRepeat : dealRepeat,
+        shuffle : shuffle
+    }
 });
