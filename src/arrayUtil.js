@@ -20,7 +20,7 @@ N.define("arrayUtil", function(){
             finalArr = [],
             arrays = slice.call( arguments );
 
-        each( arrays function( array ){
+        each( arrays, function( array ){
             each(array, function( item ){
                 if( keyObj[item] === undefined ){
                     keyObj[item] = true;
@@ -51,6 +51,8 @@ N.define("arrayUtil", function(){
             shuffled[i] = shuffled[random];
             shuffled[random] = item;
         } );
+
+        return shuffled;
     }
 
     return {

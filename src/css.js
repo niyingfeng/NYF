@@ -4,7 +4,7 @@
 // addClass removeClass
 // toggle
 
-N.define( "css", ["arrayUtil"] function( arrayUtil ){
+N.define( "css", ["arrayUtil"], function( arrayUtil ){
     var trim = N.trim,
         filter = N.filter,
         map = N.map,
@@ -26,9 +26,6 @@ N.define( "css", ["arrayUtil"] function( arrayUtil ){
             var classStr = dom.className,
                 classes = dealClass( classStr );
 
-            var hasClassed = some(classes, function(class){
-
-                                });
         } );
 
     }

@@ -1,4 +1,4 @@
-/*! n 2013-11-22 by yingfeng */
+/*! n 2013-11-25 by yingfeng */
 // 简单的 N 框架
 // nyf 2013.7.1
 
@@ -361,10 +361,72 @@
         return newArr;
     }
 
+    function some( array, iterator, context ){
+        var value,i,len, flog = false,
+            some = ArrayProto.some;
+
+        context = context||this;
+
+        if(array == null) return;
+
+        if(some && array.some === some){
+            return array.some(iterator, context);
+        }else if( isArray(array) ){
+            for(i=0, len=array.length; i<len; i++){
+                if( iterator.call(context, array[i], i, array) === true ){
+                    flog = true;
+                    break;
+                }          
+            }
+        }else{
+            for(var key in array){
+                if(hasOwn.call(array, key)){
+                    if( iterator.call(context, array[key], key, array) === true ){
+                        flog = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return flog;
+    }
+
+    function every( array, iterator, context ){
+        var value,i,len, flog = true,
+            every = ArrayProto.every;
+
+        context = context||this;
+
+        if(array == null) return;
+
+        if(every && array.every === every){
+            return array.every(iterator, context);
+        }else if( isArray(array) ){
+            for(i=0, len=array.length; i<len; i++){
+                if( iterator.call(context, array[i], i, array) === false ){
+                    flog = false;
+                    break;
+                }          
+            }
+        }else{
+            for(var key in array){
+                if(hasOwn.call(array, key)){
+                    if( iterator.call(context, array[key], key, array) === false ){
+                        flog = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return flog;
+    }
+
     mix(N, {
         each : each,
         map : map,
-        filter : filter
+        filter : filter,
+        some : some,
+        every : every
     });
 
     function createNode( tagName, attrs ){
@@ -556,6 +618,68 @@ N.define("$",function(){
     }
 
 });
+// 集中一些对于数组的处理方法 参考一下 underscore
+// dealRepeat 合并多个数组去除重复元素
+// shuffle 将数组元素随机打乱
+
+N.define("arrayUtil", function(){
+    var each = N.each,
+        isArray = N.isArray,
+        slice = Array.prototype.slice;
+
+    /** 合并多个数组去除重复元素 dealRepeat
+    *  
+    *   @method dealRepeat
+    *   @param {array} arrays 需要去重合并的 数组 组
+    *   @return {Object} 返回合并去重的数组
+    *   
+    *   dealRepeat([1,2,3],[2,5,6]); return [1,2,3,5,6]
+    */
+    function dealRepeat(){
+        var keyObj = {},
+            finalArr = [],
+            arrays = slice.call( arguments );
+
+        each( arrays, function( array ){
+            each(array, function( item ){
+                if( keyObj[item] === undefined ){
+                    keyObj[item] = true;
+                    finalArr.push( item );
+                }
+            });
+        });
+
+        return finalArr;
+
+    }
+
+    /** 随机重排序数组元素 shuffle
+    *  
+    *   @method shuffle
+    *   @param {array} array 需要随机重排序的数组
+    *   @return {Object} 返回合并去重的数组
+    *   
+    *   shuffle([1,2,3,5,6]); return [3,2,6,5,1]
+    */
+    function shuffle( array ){
+        var len = array.length,
+            shuffled = array.slice(),
+            random;
+
+        each( array, function( item, i ){
+            var random = Math.randon() * len >>> 0;
+            shuffled[i] = shuffled[random];
+            shuffled[random] = item;
+        } );
+
+        return shuffled;
+    }
+
+    return {
+        dealRepeat : dealRepeat,
+        shuffle : shuffle
+    }
+});
 // 关于 cookie模块
 // 返回包含 cookie 与 removeCookie 方法的对象
 
@@ -624,15 +748,32 @@ N.define( "cookie", function(){
 // hide show
 // addCss removeCss
 // addClass removeClass
+// toggle
 
-N.define( "css", function(){
-    var trim = N.trim;
+N.define( "css", ["arrayUtil"], function( arrayUtil ){
+    var trim = N.trim,
+        filter = N.filter,
+        map = N.map,
+        isArray = N.isArray;
 
     function dealClass( classStr ){
         var classesName = [],
             classStr = trim( classStr );
 
         return classStr.split(/\s+/g);
+    }
+
+    function addClass( doms, classes ){
+        if( !isArray(doms) ){
+            doms = [doms];
+        }
+
+        map( doms, function( dom ){
+            var classStr = dom.className,
+                classes = dealClass( classStr );
+
+        } );
+
     }
 });
 // 对于数据的处理，以闭包形式保存数据
