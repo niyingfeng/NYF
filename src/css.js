@@ -21,11 +21,18 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
         if( !isArray(doms) ){
             doms = [doms];
         }
+        if( !isArray(classes) ){
+            classes = [classes];
+        }
 
         map( doms, function( dom ){
             var classStr = dom.className,
-                classes = dealClass( classStr );
+                oldclasses = dealClass( classStr ),
+                newclasses;
 
+                newclasses = arrayUtil.dealRepeat( classes, oldclasses );
+
+                dom.className = newclasses.join(" ");
         } );
 
     }
