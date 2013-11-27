@@ -627,9 +627,9 @@ N.define("arrayUtil", function(){
         isArray = N.isArray,
         slice = Array.prototype.slice;
 
-    /** 合并多个数组去除重复元素 dealRepeat
+    /** 合并多个数组去除重复元素 mergeRepeatArray
     *  
-    *   @method dealRepeat
+    *   @method mergeRepeatArray
     *   @param {array} arrays 需要去重合并的 数组 组
     *   @return {Object} 返回合并去重的数组
     *   
@@ -653,6 +653,15 @@ N.define("arrayUtil", function(){
 
     }
 
+    /** 对原数组去除重复元素 deleteRepeat
+    *  
+    *   @method deleteRepeat
+    *   @param {array} originArr 需要去重的原数组
+    *   @param {array} deleteArr 需要去除的元素数组
+    *   @return {Object} 返回合并去重的数组
+    *   
+    *   dealRepeat([1,2,3],[2,4]); return [1,3]
+    */
     function deleteRepeat( originArr, deleteArr ){
         var targetArr=[],delObj = {}, i , len;
         for(i=0,len=deleteArr.length; i<len; i++){
@@ -769,7 +778,7 @@ N.define( "cookie", function(){
 N.define( "css", ["arrayUtil"], function( arrayUtil ){
     var trim = N.trim,
         filter = N.filter,
-        map = N.map,
+        each = N.each,
         isArray = N.isArray;
 
     function dealClass( classStr ){
@@ -787,7 +796,7 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
             classes = [classes];
         }
 
-        map( doms, function( dom ){
+        each( doms, function( dom ){
             var classStr = dom.className,
                 oldclasses = dealClass( classStr ),
                 newclasses;
@@ -807,7 +816,7 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
             classes = [classes];
         }
 
-        map( doms, function( dom ){
+        each( doms, function( dom ){
             var classStr = dom.className,
                 oldclasses = dealClass( classStr ),
                 newclasses;
@@ -816,6 +825,34 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
 
                 dom.className = newclasses.join(" ");
         } );
+    }
+
+    function hide( doms ){
+        if( !isArray(doms) ){
+            doms = [doms];
+        }
+
+        each( doms, function( dom ){
+            dom.style.display = "none";
+        } );
+    } 
+
+    function show( doms ){
+        if( !isArray(doms) ){
+            doms = [doms];
+        }
+
+        each( doms, function( dom ){
+            dom.style.display = "block";
+        } );
+    }
+
+    return {
+        addClass : addClass,
+        deleteClass : deleteClass,
+
+        show : show,
+        hide : hide
     }
 });
 // 对于数据的处理，以闭包形式保存数据

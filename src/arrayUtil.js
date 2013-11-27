@@ -7,9 +7,9 @@ N.define("arrayUtil", function(){
         isArray = N.isArray,
         slice = Array.prototype.slice;
 
-    /** 合并多个数组去除重复元素 dealRepeat
+    /** 合并多个数组去除重复元素 mergeRepeatArray
     *  
-    *   @method dealRepeat
+    *   @method mergeRepeatArray
     *   @param {array} arrays 需要去重合并的 数组 组
     *   @return {Object} 返回合并去重的数组
     *   
@@ -33,6 +33,15 @@ N.define("arrayUtil", function(){
 
     }
 
+    /** 对原数组去除重复元素 deleteRepeat
+    *  
+    *   @method deleteRepeat
+    *   @param {array} originArr 需要去重的原数组
+    *   @param {array} deleteArr 需要去除的元素数组
+    *   @return {Object} 返回合并去重的数组
+    *   
+    *   dealRepeat([1,2,3],[2,4]); return [1,3]
+    */
     function deleteRepeat( originArr, deleteArr ){
         var targetArr=[],delObj = {}, i , len;
         for(i=0,len=deleteArr.length; i<len; i++){

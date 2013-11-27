@@ -7,7 +7,7 @@
 N.define( "css", ["arrayUtil"], function( arrayUtil ){
     var trim = N.trim,
         filter = N.filter,
-        map = N.map,
+        each = N.each,
         isArray = N.isArray;
 
     function dealClass( classStr ){
@@ -25,7 +25,7 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
             classes = [classes];
         }
 
-        map( doms, function( dom ){
+        each( doms, function( dom ){
             var classStr = dom.className,
                 oldclasses = dealClass( classStr ),
                 newclasses;
@@ -45,7 +45,7 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
             classes = [classes];
         }
 
-        map( doms, function( dom ){
+        each( doms, function( dom ){
             var classStr = dom.className,
                 oldclasses = dealClass( classStr ),
                 newclasses;
@@ -54,5 +54,33 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
 
                 dom.className = newclasses.join(" ");
         } );
+    }
+
+    function hide( doms ){
+        if( !isArray(doms) ){
+            doms = [doms];
+        }
+
+        each( doms, function( dom ){
+            dom.style.display = "none";
+        } );
+    } 
+
+    function show( doms ){
+        if( !isArray(doms) ){
+            doms = [doms];
+        }
+
+        each( doms, function( dom ){
+            dom.style.display = "block";
+        } );
+    }
+
+    return {
+        addClass : addClass,
+        deleteClass : deleteClass,
+
+        show : show,
+        hide : hide
     }
 });
