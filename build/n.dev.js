@@ -1,4 +1,4 @@
-/*! n 2013-11-25 by yingfeng */
+/*! n 2013-11-27 by yingfeng */
 // 简单的 N 框架
 // nyf 2013.7.1
 
@@ -635,7 +635,7 @@ N.define("arrayUtil", function(){
     *   
     *   dealRepeat([1,2,3],[2,5,6]); return [1,2,3,5,6]
     */
-    function dealRepeat(){
+    function mergeRepeatArray(){
         var keyObj = {},
             finalArr = [],
             arrays = slice.call( arguments );
@@ -650,6 +650,22 @@ N.define("arrayUtil", function(){
         });
 
         return finalArr;
+
+    }
+
+    function deleteRepeat( originArr, deleteArr ){
+        var targetArr=[],delObj = {}, i , len;
+        for(i=0,len=deleteArr.length; i<len; i++){
+            delObj[ deleteArr[i] ] = true;
+        }
+
+        for(i=0,len=originArr.length; i<len; i++ ){
+            if( delObj[ originArr[i] ] !== true){
+                targetArr.push(originArr[i]);
+            }
+        }
+
+        return targetArr;
 
     }
 
@@ -767,13 +783,39 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
         if( !isArray(doms) ){
             doms = [doms];
         }
+        if( !isArray(classes) ){
+            classes = [classes];
+        }
 
         map( doms, function( dom ){
             var classStr = dom.className,
-                classes = dealClass( classStr );
+                oldclasses = dealClass( classStr ),
+                newclasses;
 
+                newclasses = arrayUtil.mergeRepeatArray( classes, oldclasses );
+
+                dom.className = newclasses.join(" ");
         } );
 
+    }
+
+    function deleteClass( doms, classes ){
+        if( !isArray(doms) ){
+            doms = [doms];
+        }
+        if( !isArray(classes) ){
+            classes = [classes];
+        }
+
+        map( doms, function( dom ){
+            var classStr = dom.className,
+                oldclasses = dealClass( classStr ),
+                newclasses;
+
+                newclasses = arrayUtil.deleteRepeat( oldclasses, classes );
+
+                dom.className = newclasses.join(" ");
+        } );
     }
 });
 // 对于数据的处理，以闭包形式保存数据

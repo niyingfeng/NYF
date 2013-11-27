@@ -40,7 +40,7 @@ N.define("arrayUtil", function(){
         }
 
         for(i=0,len=originArr.length; i<len; i++ ){
-            if( delObj[ originArr[i] ] !=== true){
+            if( delObj[ originArr[i] ] !== true){
                 targetArr.push(originArr[i]);
             }
         }
