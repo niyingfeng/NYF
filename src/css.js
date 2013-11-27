@@ -30,10 +30,29 @@ N.define( "css", ["arrayUtil"], function( arrayUtil ){
                 oldclasses = dealClass( classStr ),
                 newclasses;
 
-                newclasses = arrayUtil.dealRepeat( classes, oldclasses );
+                newclasses = arrayUtil.mergeRepeatArray( classes, oldclasses );
 
                 dom.className = newclasses.join(" ");
         } );
 
+    }
+
+    function deleteClass( doms, classes ){
+        if( !isArray(doms) ){
+            doms = [doms];
+        }
+        if( !isArray(classes) ){
+            classes = [classes];
+        }
+
+        map( doms, function( dom ){
+            var classStr = dom.className,
+                oldclasses = dealClass( classStr ),
+                newclasses;
+
+                newclasses = arrayUtil.deleteRepeat( oldclasses, classes );
+
+                dom.className = newclasses.join(" ");
+        } );
     }
 });

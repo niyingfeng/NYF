@@ -15,7 +15,7 @@ N.define("arrayUtil", function(){
     *   
     *   dealRepeat([1,2,3],[2,5,6]); return [1,2,3,5,6]
     */
-    function dealRepeat(){
+    function mergeRepeatArray(){
         var keyObj = {},
             finalArr = [],
             arrays = slice.call( arguments );
@@ -30,6 +30,22 @@ N.define("arrayUtil", function(){
         });
 
         return finalArr;
+
+    }
+
+    function deleteRepeat( originArr, deleteArr ){
+        var targetArr=[],delObj = {}, i , len;
+        for(i=0,len=deleteArr.length; i<len; i++){
+            delObj[ deleteArr[i] ] = true;
+        }
+
+        for(i=0,len=originArr.length; i<len; i++ ){
+            if( delObj[ originArr[i] ] !=== true){
+                targetArr.push(originArr[i]);
+            }
+        }
+
+        return targetArr;
 
     }
 
