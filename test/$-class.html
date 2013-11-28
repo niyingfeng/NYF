@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+
+<script src="../build/n.dev.js"></script>
+
+</head>
+<body>
+    <div class="aaa cc"><p id="bbb"></p></div>
+
+    <div><ul><li>a</li><li>b</li><li>c</li><li>d</li><li>e</li></ul></div>
+TEST
+<script type="text/javascript">
+
+var $ = N.execute("$")
+var css = N.execute("css")
+
+css.addClass($(".aaa,#bbb"), "a")
+
+css.addClass($(".aaa,#bbb"), ["aoklh","asw","sssssssssss"])
+
+css.deleteClass($(".aaa,#bbb"), ["aoklh","asw","sss"])
+
+</script>
+</body>
+</html>

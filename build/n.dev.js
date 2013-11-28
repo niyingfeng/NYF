@@ -1,4 +1,4 @@
-/*! n 2013-11-27 by yingfeng */
+/*! n 2013-11-28 by yingfeng */
 // 简单的 N 框架
 // nyf 2013.7.1
 
@@ -701,7 +701,8 @@ N.define("arrayUtil", function(){
     }
 
     return {
-        dealRepeat : dealRepeat,
+        mergeRepeatArray : mergeRepeatArray,
+        deleteRepeat : deleteRepeat,
         shuffle : shuffle
     }
 });

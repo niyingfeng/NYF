@@ -81,7 +81,8 @@ N.define("arrayUtil", function(){
     }
 
     return {
-        dealRepeat : dealRepeat,
+        mergeRepeatArray : mergeRepeatArray,
+        deleteRepeat : deleteRepeat,
         shuffle : shuffle
     }
 });
