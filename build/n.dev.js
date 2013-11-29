@@ -483,9 +483,9 @@
         ltrim = function( str ){ return str.trimLeft(); }; 
         rtrim = function( str ){ return str.trimRight(); };
     }else{
-        trim = function( str ){ return str.rplace(/^\s+|\s+$/g, '') };
-        ltrim = function( str ){ return str.rplace(/^\s+/g, '') }; 
-        rtrim = function( str ){ return str.rplace(/\s+$/g, '') };
+        trim = function( str ){ return str.replace(/^\s+|\s+$/g, '') };
+        ltrim = function( str ){ return str.replace(/^\s+/g, '') }; 
+        rtrim = function( str ){ return str.replace(/\s+$/g, '') };
     }
 
     mix(N, {
@@ -519,7 +519,7 @@ define, require, execute, dealname, setAbsUrl
 // （ 摔 说穿了就是老子实现不了 TAT ）
 // 之后需要扩展实现 简单的层级查找 $("#id .classname")
 
-N.define("$",function(){
+N.define("$", ["arrayUtil"], function( arrayUtil ){
 
     'use strict';
     var objPro = Object.prototype,
@@ -531,7 +531,10 @@ N.define("$",function(){
         d = w.document,
 
         each = N.each,
-        extend = N.extend;
+        extend = N.extend,
+        trim = N.trim,
+        filter = N.filter,
+        isArray = N.isArray;
 
     // 几个基本选择器方法
     function getDomObj(str, root){
@@ -577,7 +580,14 @@ N.define("$",function(){
             }
         };
 
-        each( array, iterator, context )
+        each( arr, iterator, context )
+    }
+
+    function dealClass( classStr ){
+        var classesName = [],
+            classStr = trim( classStr );
+
+        return classStr.split(/\s+/g);
     }
 
     //为了可以继承DOM的一般方法，将DOM数组信息放入实例对象中
@@ -625,7 +635,7 @@ N.define("$",function(){
 
         // 单个情况
         if(str.indexOf(",") === -1){
-            return markArray( getDomObj(str,root), this);
+            return markNObject( getDomObj(str,root), this);
         }  
 
         elements = str.split(reg_spl);
@@ -636,7 +646,7 @@ N.define("$",function(){
             ret = ret.concat(dom_obj);
         }
     
-        return markArray( ret, this);
+        return markNObject( ret, this);
     }
 
     $.prototype = {
@@ -648,7 +658,7 @@ N.define("$",function(){
                 classes = [classes];
             }
 
-            markNObject( self, function( dom ){
+            likeArrayEach( self, function( dom ){
                 var classStr = dom.className,
                     oldclasses = dealClass( classStr ),
                     newclasses;
@@ -657,6 +667,8 @@ N.define("$",function(){
 
                     dom.className = newclasses.join(" ");
             } );
+
+            return this;
         },
         deleteClass : function( classes ){
             var self = this;
@@ -664,7 +676,7 @@ N.define("$",function(){
                 classes = [classes];
             }
 
-            each( self, function( dom ){
+            likeArrayEach( self, function( dom ){
                 var classStr = dom.className,
                     oldclasses = dealClass( classStr ),
                     newclasses;
@@ -673,6 +685,8 @@ N.define("$",function(){
 
                     dom.className = newclasses.join(" ");
             } );
+
+            return this;
         },
 
         hide : function(){
@@ -680,16 +694,21 @@ N.define("$",function(){
             markNObject( self, function( dom ){
                 dom.style.display = "none";
             } );
+
+            return this;
         },
         show : function(){
             var self = this;
             markNObject( self, function( dom ){
                 dom.style.display = "block";
             } );
+
+            return this;
         },
 
         extend : function( obj ){
             extend( $.prototype, obj );
+            return this;
         }
     }
 

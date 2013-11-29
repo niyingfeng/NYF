@@ -13,13 +13,24 @@ TEST
 <script type="text/javascript">
 
 var $ = N.execute("$")
-var css = N.execute("css")
 
-css.addClass($(".aaa,#bbb"), "a")
 
-css.addClass($(".aaa,#bbb"), ["aoklh","asw","sssssssssss"])
+$(".aaa").addClass("a")
 
-css.deleteClass($(".aaa,#bbb"), ["aoklh","asw","sss"])
+$(".aaa").deleteClass("a")
+
+$(".aaa,#bbb").deleteClass("a")
+
+$(".aaa,#bbb").addClass("a")
+
+$(".aaa,#bbb").deleteClass("a")
+
+$(".aaa,#bbb").deleteClass(["q","e","333333333"])
+
+$(".aaa,#bbb").addClass(["q","e","333333333"])
+
+$(".aaa,#bbb").deleteClass(["q","e","333333333"])
+
 
 </script>
 </body>

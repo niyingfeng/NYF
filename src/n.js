@@ -482,9 +482,9 @@
         ltrim = function( str ){ return str.trimLeft(); }; 
         rtrim = function( str ){ return str.trimRight(); };
     }else{
-        trim = function( str ){ return str.rplace(/^\s+|\s+$/g, '') };
-        ltrim = function( str ){ return str.rplace(/^\s+/g, '') }; 
-        rtrim = function( str ){ return str.rplace(/\s+$/g, '') };
+        trim = function( str ){ return str.replace(/^\s+|\s+$/g, '') };
+        ltrim = function( str ){ return str.replace(/^\s+/g, '') }; 
+        rtrim = function( str ){ return str.replace(/\s+$/g, '') };
     }
 
     mix(N, {
