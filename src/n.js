@@ -251,21 +251,24 @@
 
     /************************** 底层基础工具函数 **************************************/
     /*   isArray  isFunction type  检测目标类型
-    *   each map  迭代循环
+    *   each map  filter some every迭代循环
     *   createNode 创建node对象
     *   loadScript 加载脚本文件
     *
     *
     */
 
+    // 是否为数组
     function isArray(arr){
         return toString.call(arr) === arrayType;
     }
 
+    // 是否为函数
     function isFunction(func){
         return toString.call(func) === functionType;
     }
 
+    // 是否为对象
     function type(obj){
         return (typeof obj === "object"?
                 (obj===null ? "null" : typeReg.exec(toString.call(obj))[1].toLowerCase()) :
@@ -279,7 +282,17 @@
     });
 
 
-
+    /** 遍历执行 each
+    *   遍历执行迭代函数
+    *  
+    *   @method each
+    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
+    *   @param {Array|Object} iterator 必选 需要迭代执行的函数
+    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+    *
+    *   @return undefined 无返回值
+    *   
+    */
     function each( array, iterator, context ){
         var value,i,len,
             forEach = ArrayProto.forEach;
@@ -303,7 +316,17 @@
         }
     }
 
-    // 
+    /** 遍历执行 map
+    *   遍历执行迭代函数并返回执行结果
+    *  
+    *   @method map
+    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
+    *   @param {Array|Object} iterator 必选 需要迭代执行的函数
+    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+    *
+    *   @return {Array} 返回执行结果数组
+    *   
+    */
     function map( array, iterator, context ){
         var value,i,len,newArr,
             map = ArrayProto.map;
@@ -330,6 +353,17 @@
         return newArr;
     }
 
+    /** 遍历判断 filter
+    *   遍历执行迭代函数并返回符合函数条件的结果数组
+    *  
+    *   @method map
+    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
+    *   @param {Array|Object} iterator 必选 需要进行判断的函数
+    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+    *
+    *   @return {Array} 返回符合条件结果数组
+    *   
+    */
     function filter( array, iterator, context ){
         var value,i,len,newArr,
             filter = ArrayProto.filter;
@@ -360,6 +394,17 @@
         return newArr;
     }
 
+    /** 是否有符合条件的结果 some
+    *   遍历执行迭代函数并返回true 或者 false
+    *  
+    *   @method map
+    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
+    *   @param {Array|Object} iterator 必选 需要进行判断的函数
+    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+    *
+    *   @return {bolean} 返回时候有item符合条件
+    *   
+    */
     function some( array, iterator, context ){
         var value,i,len, flog = false,
             some = ArrayProto.some;
@@ -390,6 +435,17 @@
         return flog;
     }
 
+    /** 是否所有符合条件 every
+    *   遍历执行迭代函数并返回true 或者 false
+    *  
+    *   @method map
+    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
+    *   @param {Array|Object} iterator 必选 需要进行判断的函数
+    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+    *
+    *   @return {bolean} 返回是否所有item符合条件
+    *   
+    */
     function every( array, iterator, context ){
         var value,i,len, flog = true,
             every = ArrayProto.every;
@@ -500,7 +556,7 @@
 
 /********************简单的使用文档************************
 基础工具：
-isArray, isFunction, type, each, map, creatNode, loadScript, loadCss
+isArray, isFunction, type, each, map, filter, some, every, creatNode, loadScript, loadCss
 
 
 对象扩展对象方法
