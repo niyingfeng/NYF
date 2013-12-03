@@ -1,4 +1,4 @@
-/*! n 2013-11-29 by yingfeng */
+/*! n 2013-12-03 by yingfeng */
 // 简单的 N 框架
 // nyf 2013.7.1
 
@@ -704,11 +704,6 @@ N.define("$", ["arrayUtil"], function( arrayUtil ){
             } );
 
             return this;
-        },
-
-        extend : function( obj ){
-            extend( $.prototype, obj );
-            return this;
         }
     }
 
@@ -881,86 +876,86 @@ N.define( "cookie", function(){
 // addClass removeClass
 // toggle
 
-N.define( "css", ["arrayUtil"], function( arrayUtil ){
-    var trim = N.trim,
-        filter = N.filter,
-        each = N.each,
-        isArray = N.isArray;
+// N.define( "css", ["arrayUtil"], function( arrayUtil ){
+//     var trim = N.trim,
+//         filter = N.filter,
+//         each = N.each,
+//         isArray = N.isArray;
 
-    function dealClass( classStr ){
-        var classesName = [],
-            classStr = trim( classStr );
+//     function dealClass( classStr ){
+//         var classesName = [],
+//             classStr = trim( classStr );
 
-        return classStr.split(/\s+/g);
-    }
+//         return classStr.split(/\s+/g);
+//     }
 
-    function addClass( doms, classes ){
-        if( !isArray(doms) ){
-            doms = [doms];
-        }
-        if( !isArray(classes) ){
-            classes = [classes];
-        }
+//     function addClass( doms, classes ){
+//         if( !isArray(doms) ){
+//             doms = [doms];
+//         }
+//         if( !isArray(classes) ){
+//             classes = [classes];
+//         }
 
-        each( doms, function( dom ){
-            var classStr = dom.className,
-                oldclasses = dealClass( classStr ),
-                newclasses;
+//         each( doms, function( dom ){
+//             var classStr = dom.className,
+//                 oldclasses = dealClass( classStr ),
+//                 newclasses;
 
-                newclasses = arrayUtil.mergeRepeatArray( classes, oldclasses );
+//                 newclasses = arrayUtil.mergeRepeatArray( classes, oldclasses );
 
-                dom.className = newclasses.join(" ");
-        } );
+//                 dom.className = newclasses.join(" ");
+//         } );
 
-    }
+//     }
 
-    function deleteClass( doms, classes ){
-        if( !isArray(doms) ){
-            doms = [doms];
-        }
-        if( !isArray(classes) ){
-            classes = [classes];
-        }
+//     function deleteClass( doms, classes ){
+//         if( !isArray(doms) ){
+//             doms = [doms];
+//         }
+//         if( !isArray(classes) ){
+//             classes = [classes];
+//         }
 
-        each( doms, function( dom ){
-            var classStr = dom.className,
-                oldclasses = dealClass( classStr ),
-                newclasses;
+//         each( doms, function( dom ){
+//             var classStr = dom.className,
+//                 oldclasses = dealClass( classStr ),
+//                 newclasses;
 
-                newclasses = arrayUtil.deleteRepeat( oldclasses, classes );
+//                 newclasses = arrayUtil.deleteRepeat( oldclasses, classes );
 
-                dom.className = newclasses.join(" ");
-        } );
-    }
+//                 dom.className = newclasses.join(" ");
+//         } );
+//     }
 
-    function hide( doms ){
-        if( !isArray(doms) ){
-            doms = [doms];
-        }
+//     function hide( doms ){
+//         if( !isArray(doms) ){
+//             doms = [doms];
+//         }
 
-        each( doms, function( dom ){
-            dom.style.display = "none";
-        } );
-    } 
+//         each( doms, function( dom ){
+//             dom.style.display = "none";
+//         } );
+//     } 
 
-    function show( doms ){
-        if( !isArray(doms) ){
-            doms = [doms];
-        }
+//     function show( doms ){
+//         if( !isArray(doms) ){
+//             doms = [doms];
+//         }
 
-        each( doms, function( dom ){
-            dom.style.display = "block";
-        } );
-    }
+//         each( doms, function( dom ){
+//             dom.style.display = "block";
+//         } );
+//     }
 
-    return {
-        addClass : addClass,
-        deleteClass : deleteClass,
+//     return {
+//         addClass : addClass,
+//         deleteClass : deleteClass,
 
-        show : show,
-        hide : hide
-    }
-});
+//         show : show,
+//         hide : hide
+//     }
+// });
 // 对于数据的处理，以闭包形式保存数据
 // 借用 JQ 的模式，来处理普通对象和DOM对象的不同处理
 
