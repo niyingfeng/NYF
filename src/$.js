@@ -190,11 +190,6 @@ N.define("$", ["arrayUtil"], function( arrayUtil ){
             } );
 
             return this;
-        },
-
-        extend : function( obj ){
-            extend( $.prototype, obj );
-            return this;
         }
     }
 
