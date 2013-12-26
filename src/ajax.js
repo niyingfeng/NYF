@@ -1,5 +1,14 @@
 // Ajax 模块
 
+// var ajax = N.execute("ajax");
+// ajax.ajax( method, url, {
+//  data:{},
+//  success:function(){},
+//  faile:function(){}
+// });
+
+// ajax.get(), ajax.post(), ajax.put(), ajax.delete()
+
 
 N.define( "ajax", function(){
 
