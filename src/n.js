@@ -2,6 +2,7 @@
 // nyf 2013.7.1
 
 // 实现模块加载化
+// 以grunt来配合压缩所需模块文件 在此中为整体压缩
 
 (function(global, undefined){
     'use strict';
