@@ -477,12 +477,34 @@
         return flog;
     }
 
+    // 关于对象类型的均不采用鸭子辨别法 只用全等
+    function has( array, item ){
+        var value,i,len;
+        if(array == null) return;
+
+        if( isArray(array) ){
+            for(i=0, len=array.length; i<len; i++){
+                if( array[i] === item ){
+                    return true;
+                }         
+            }
+        }else{
+            for(var key in array){
+                if(hasOwn.call(array, key)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     mix(N, {
         each : each,
         map : map,
         filter : filter,
         some : some,
-        every : every
+        every : every,
+        has : has
     });
 
     function createNode( tagName, attrs ){
