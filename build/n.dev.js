@@ -1,8 +1,9 @@
-/*! n 2013-12-03 by yingfeng */
+/*! n 2014-04-11 by yingfeng */
 // 简单的 N 框架
 // nyf 2013.7.1
 
 // 实现模块加载化
+// 以grunt来配合压缩所需模块文件 在此中为整体压缩
 
 (function(global, undefined){
     'use strict';
@@ -477,12 +478,34 @@
         return flog;
     }
 
+    // 关于对象类型的均不采用鸭子辨别法 只用全等
+    function has( array, item ){
+        var value,i,len;
+        if(array == null) return;
+
+        if( isArray(array) ){
+            for(i=0, len=array.length; i<len; i++){
+                if( array[i] === item ){
+                    return true;
+                }         
+            }
+        }else{
+            for(var key in array){
+                if(hasOwn.call(array, key)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     mix(N, {
         each : each,
         map : map,
         filter : filter,
         some : some,
-        every : every
+        every : every,
+        has : has
     });
 
     function createNode( tagName, attrs ){
@@ -776,6 +799,15 @@ N.define("$", ["arrayUtil"], function( arrayUtil ){
 });
 // Ajax 模块
 
+// var ajax = N.execute("ajax");
+// ajax.ajax( method, url, {
+//  data:{},
+//  success:function(){},
+//  faile:function(){}
+// });
+
+// ajax.get(), ajax.post(), ajax.put(), ajax.delete()
+
 
 N.define( "ajax", function(){
 
@@ -982,156 +1014,6 @@ N.define("arrayUtil", function(){
         shuffle : shuffle
     }
 });
-// 关于 cookie模块
-// 返回包含 cookie 与 removeCookie 方法的对象
-
-N.define( "cookie", function(){
-    var doc = document
-        dayMS = 60 * 60 * 24,
-        defExpired = 7 * dayMS;
-
-    function setCookie( name, val, options ){
-        options = (typeof( options ) === "object") ? options : { expires : options } ;
-
-        var expires = options.expires !== undefined ? options.expires * dayMS : defExpired;
-        expires = ";expires="+(new Date( +new Date() + expires)).toGMTString();
-
-        var path = options.path;
-        path = path ? ";path="+path : "";
-
-        var domain = options.domain;
-        domain = domain ? ";domain="+domain : "";
-
-        var secure = options.secure ? ";secure" : "";
-
-        document.cookie = encode(name) + "=" +encode(val) + expires + path + domain + secure;
-
-        return encode(name) + "=" +encode(val);
-    }
-
-    function getCookie( name ){
-        var i, len, pair,
-            cookieStr = doc.cookie,
-            pairs = cookieStr.split(/;\s?/i);
-
-        for(i=0, len=pairs.length; i<len; i++){
-            pair = pairs[i].split("=");
-            
-            if( pair.length !== 2 ) continue;
-
-            if( pair[0] === encode(name) ){
-
-                return decodeURIComponent(pair[1]);  
-
-            }
-            return "";
-        }
-
-    }
-
-    function encode(str){
-        return (str+"").replace(/[,;"'\\=\s%]/g,function( v ){
-            return encodeURIComponent(v);
-        });
-    }
-
-    return function( name, val, options ){
-        if( !name ) return;
-
-        if( val === undefined ){
-            return getCookie( name );
-        }else{
-            return setCookie( name, val, options );
-        }
-    };
-
-});
-// 对于样式进行处理'
-// hide show
-// addCss removeCss
-// addClass removeClass
-// toggle
-
-// N.define( "css", ["arrayUtil"], function( arrayUtil ){
-//     var trim = N.trim,
-//         filter = N.filter,
-//         each = N.each,
-//         isArray = N.isArray;
-
-//     function dealClass( classStr ){
-//         var classesName = [],
-//             classStr = trim( classStr );
-
-//         return classStr.split(/\s+/g);
-//     }
-
-//     function addClass( doms, classes ){
-//         if( !isArray(doms) ){
-//             doms = [doms];
-//         }
-//         if( !isArray(classes) ){
-//             classes = [classes];
-//         }
-
-//         each( doms, function( dom ){
-//             var classStr = dom.className,
-//                 oldclasses = dealClass( classStr ),
-//                 newclasses;
-
-//                 newclasses = arrayUtil.mergeRepeatArray( classes, oldclasses );
-
-//                 dom.className = newclasses.join(" ");
-//         } );
-
-//     }
-
-//     function deleteClass( doms, classes ){
-//         if( !isArray(doms) ){
-//             doms = [doms];
-//         }
-//         if( !isArray(classes) ){
-//             classes = [classes];
-//         }
-
-//         each( doms, function( dom ){
-//             var classStr = dom.className,
-//                 oldclasses = dealClass( classStr ),
-//                 newclasses;
-
-//                 newclasses = arrayUtil.deleteRepeat( oldclasses, classes );
-
-//                 dom.className = newclasses.join(" ");
-//         } );
-//     }
-
-//     function hide( doms ){
-//         if( !isArray(doms) ){
-//             doms = [doms];
-//         }
-
-//         each( doms, function( dom ){
-//             dom.style.display = "none";
-//         } );
-//     } 
-
-//     function show( doms ){
-//         if( !isArray(doms) ){
-//             doms = [doms];
-//         }
-
-//         each( doms, function( dom ){
-//             dom.style.display = "block";
-//         } );
-//     }
-
-//     return {
-//         addClass : addClass,
-//         deleteClass : deleteClass,
-
-//         show : show,
-//         hide : hide
-//     }
-// });
 // 对于数据的处理，以闭包形式保存数据
 // 借用 JQ 的模式，来处理普通对象和DOM对象的不同处理
 
