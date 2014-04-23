@@ -573,8 +573,8 @@
     });
 
 
-    global.define = N.define;
-    global.require = N.require;
+    //global.define = N.define;
+    //global.require = N.require;
         
 })(window);
 
