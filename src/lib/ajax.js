@@ -117,12 +117,11 @@ N.define( "ajax", function(){
         }
     }
 
-    ajax = {
+    var ajax = {
         ajax : Ajax,
         get : _Ajaxer("GET"),
         post : _Ajaxer("POST"),
-        put : _Ajaxer("PUT"),
-        delete : _Ajaxer("DELETE")
+        put : _Ajaxer("PUT")
     };
 
     return ajax;
