@@ -1,2 +1,8 @@
 <script src="./n.js"></script>
-<script src="./lib/subpub.js"></script>
+<script src="./lib/template.js"></script>
+
+<script type="text/javascript">
+	var t = N.require('template');
+	var a = t('<%-name%>aaa<%if(c){%>bbb<%}%>ccc', {"name": "nyf", c: true });
+	//console.log(a({"name":nyf, "c":true});
+</script>
