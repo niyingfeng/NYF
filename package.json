@@ -1,0 +1,22 @@
+{
+  "name": "n",
+  "version": "0.0.1",
+  "description": "小型的模块加载器",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-concat": "~0.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lovenyf/NYF.git"
+  },
+  "author": "yingfeng",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/lovenyf/NYF/issues"
+  },
+  "homepage": "https://github.com/lovenyf/NYF"
+}
