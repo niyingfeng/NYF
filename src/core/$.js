@@ -2,7 +2,6 @@
 // 返回为 DOM对象数组形式 目前只支持单层的查找
 // $(".classname") & $("#id") & $("#id1,#id2")
 // 并不是为了实现如JQ中的选择器，实现一些简单的选择器功能 相当简单
-// （ 摔 说穿了就是老子实现不了 TAT ）
 // 之后需要扩展实现 简单的层级查找 $("#id .classname")
 
 N.define("$", ["arrayUtil"], function( arrayUtil ){

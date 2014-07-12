@@ -1,4 +1,4 @@
-/*! n 2014-07-08 by yingfeng */
+/*! n 2014-07-12 by yingfeng */
 // 简单的 N 框架
 // nyf 2013.7.1
 
@@ -48,67 +48,73 @@
 
 
 
-    /*********************************扩展继承*************************************/
+/*********************************扩展继承*************************************/
     /** 对象扩展 extend
     *  
-    *   @method extend
-    *   @param {String} receiver 可选 扩展的目标对象 如果无 则扩展到外围为对象（一般为 N）
+    *   @method extend  不扩展原型属性
+    *   @param {obj} receiver 可选 扩展的目标对象 如果无 则扩展到外围为对象（一般为 N）
     *   @param {obj} obj 必选 要扩展到目标对象的对象数据
-    *   @param {boolean} 可选 主要是标识是否需要深度拷贝 默认为true
+    *   @param {boolean} ride 可选 主要是标识是否覆盖原有对象属性 默认为true
+    *   @param {boolean} deep 可选 主要是标识是否需要简单的深度拷贝 默认为true
     *
     *   @return {Object} 返回目标对象
     *   
     */
     function extend(receiver, obj){
-        var args = slice.call(arguments), key,
-            deep = (type(args[args.length-1]) === "boolean")?args.pop():true;
+        var args = slice.call(arguments), key, i = 1,
+            deep, ride;
 
-        obj = args[args.length-1];
+        if( type(args[args.length-2]) === "boolean" ){
+            deep = args.pop();
+            ride = args.pop();
+        }else{
+            ride = (type(args[args.length-1]) === "boolean")?args.pop():true;
+            deep = true;
+        }
 
         if(args.length == 1){
-            receiver = this;
+            receiver = ( this !== global ) ? this : {};
         }
-        for( key in obj ){
-            if(hasOwn.call(obj, key)){
-                if(!hasOwn.call(receiver,key)){
-                    if( deep && (type(obj[key])==="object" || type(obj[key])==="array")){
-                        receiver[key]={};
-                        extend(receiver[key], obj[key]);
+
+        while( obj = args[ i++ ] ){
+            for( key in obj ){
+                if(hasOwn.call(obj, key)){
+                    if( !ride && hasOwn.call(receiver,key) ){                    
+                        throw new Error("sorry "+key+" is already in the receiver object");
                     }else{
-                        receiver[key] = obj[key];
+                        if( deep && (type(obj[key])==="object")){
+                            receiver[key]={};
+                            extend(receiver[key], obj[key], ride, deep);
+                        }else if( deep && (type(obj[key])==="array" )){
+                            receiver[key] = obj[key].slice();
+                        }else{
+                            receiver[key] = obj[key];
+                        }
                     }
-                }else{                    
-                    throw new Error("sorry "+key+" is already in the receiver object");
+
                 }
             }
         }
+            
         return receiver;
     }
 
-
     /** 对象扩展 mix
-    *   简单来说是属于extend的简单形式，不进行深度拷贝 并且目标对象为必选
-    *   @method mix
-    *   @param {String} target 必选 扩展的目标对象
+    *   简单来说是属于extend的简单形式，不进行深度拷贝 并且目标对象为可选 默认当前调用对象
+    *   @method mix  主要适用于N内部的属性扩展简便方法
+    *   @param {obj} target 可选 扩展的目标对象
     *   @param {obj} obj 必选（可有多个） 要扩展到目标对象的对象数据
     *   
     *   @return {Object} 返回目标对象
     *   
     */
     function mix(target, obj){
-        var args = slice.call(arguments), i=1, len=args.length, key;
-        for(;i<len;i++){
-            obj = args[i];
-            for(key in obj){
-                if(hasOwn.call(obj, key)){
-                    if(!hasOwn.call(target, key)){
-                        target[key] = obj[key];
-                    }else{
-                        throw new Error("sorry "+key+" is already in the receiver object");
-                    }
-                }
-            }
+        var args = slice.call( arguments );
+        if( args.length === 1 ){
+            args.unshift( this );
         }
+        args.push( true, false );
+        extend.apply(this, args)
     }
 
     // 用于使用来继承扩展对象
@@ -128,8 +134,32 @@
     });
 
 
+/*********************************数组化*************************************/
+    function toArray( array ){
+        var i, ret = [];
+        if( array != null ){
+            i = array.length;
+            if( i === undefined || type( array ) === 'string' || type( array ) === "function" ){
+                ret[0] = array;
+            }else{
+                if( array.item ){
+                    while( i-- ){
+                        ret[i] = array[i];
+                    }
+                }else{
+                    ret = slice.call(array)
+                }
+            }
+        }
 
-    /**************************模块方面的***************************************/
+        return ret;
+    }
+
+    mix(N, {
+        toArray : toArray
+    });
+
+/**************************模块方面的***************************************/
 
     var Model, // 公共接口对象（公共接口集） 
         modelLoaded = {},     // 已经加载的模块（加载的未执行的模块信息集）
@@ -581,13 +611,15 @@
 
 
 /********************简单的使用文档************************
-基础工具：
-isArray, isFunction, type, each, map, filter, some, every, creatNode, loadScript, loadCss
-
 
 对象扩展对象方法
 extend, mix, creatObject
 
+数组化
+toArray
+
+基础工具：
+isArray, isFunction, type, each, map, filter, some, every, creatNode, loadScript, loadCss
 
 模块化方法
 define, require, execute, dealname, setAbsUrl 
@@ -597,7 +629,6 @@ define, require, execute, dealname, setAbsUrl
 // 返回为 DOM对象数组形式 目前只支持单层的查找
 // $(".classname") & $("#id") & $("#id1,#id2")
 // 并不是为了实现如JQ中的选择器，实现一些简单的选择器功能 相当简单
-// （ 摔 说穿了就是老子实现不了 TAT ）
 // 之后需要扩展实现 简单的层级查找 $("#id .classname")
 
 N.define("$", ["arrayUtil"], function( arrayUtil ){
