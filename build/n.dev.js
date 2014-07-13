@@ -1,4 +1,4 @@
-/*! n 2014-07-12 by yingfeng */
+/*! n 2014-07-13 by yingfeng */
 // 简单的 N 框架
 // nyf 2013.7.1
 
@@ -29,16 +29,9 @@
         ltrimFunc = StringProto.trimLeft,
         rtrimFunc = StringProto.trimRight;
 
-    // 正则集中
-    var typeReg = /\[object (\w+)\]/;
-    
-    // 一些常用的常量
-    var arrayType = "[object Array]",
-        functionType = "[object Function]",
-        objectType = "[object Object]",
 
-        // 简单的浏览器UA检测正则
-        regmsie = /(MSIE) ([\w.]+)/,
+    // 简单的浏览器UA检测正则
+    var regmsie = /(MSIE) ([\w.]+)/,
         regwebkit = /(AppleWebKit)[ \/]([\w.]+)/,
         regmsie = /(Opera)([\w.]+)/,
         regmsie = /(Gecko\/)([\w.]+)/,
@@ -47,8 +40,12 @@
         regrname = /(?:\.?\/)?([\w\W]*\/)?([\w\W]*)/;
 
 
+/********************************* 正则表达 *************************************/
+    mix( N, {
+        sStringReg : /[^, ]+/g
+    });
 
-/*********************************扩展继承*************************************/
+/********************************* 扩展继承 *************************************/
     /** 对象扩展 extend
     *  
     *   @method extend  不扩展原型属性
@@ -290,21 +287,62 @@
     *
     */
 
+/************************** 类型判定 **************************************/
+    
+    // 类型判定对象
+    var class2type = {
+        "[objectHTMLDocument]" : "document",
+        "[objectHTMLCollection]" : "nodeList",
+        "[objectStaticNodeList]" : "nodeList",
+        "[objectIXMLDOMNodeList]" : "nodeList",
+        "null" : "null",
+        "NaN" : "NaN",
+        "undefined" : "undefined"
+    };
+
+    "Boolean, Number, String, Function, Array, Date, RegExp, Document, Arguments, NodeList"
+        .replace( N.sStringReg, function( type ){
+            class2type["[object " + type + "]"] = type.toLowerCase();
+        } );
+
     // 是否为数组
-    function isArray(arr){
-        return toString.call(arr) === arrayType;
+    function isArray( arr ){
+        return type( arr, "array" );
+    }
+
+    function isArrarLike( arr ){
+        var t = type( arr ),
+            len = arr.length;
+
+        return t === "array" || t !== "function" && 
+            ( len === 0 || len > 0 && ( len-1 ) in arr );
     }
 
     // 是否为函数
-    function isFunction(func){
-        return toString.call(func) === functionType;
+    function isFunction( func ){
+         return type( arr, "function" );
     }
 
-    // 是否为对象
-    function type(obj){
-        return (typeof obj === "object"?
-                (obj===null ? "null" : typeReg.exec(toString.call(obj))[1].toLowerCase()) :
-                typeof obj);
+    // 类型判定
+    function type( obj, isType ){
+        var key = ((obj == null || obj !== obj ) ? obj + "" : toString.call( obj )),
+            result;
+        
+        if( typeof(result = class2type[ key ]) !== "string" ){
+            if( obj.nodeType === 9 ){
+                result = class2type["Document"];
+            }else if( obj.item && typeof obj.length === "number" ){
+                result = class2type["NodeList"];
+            }else{
+                result = key.slice(8, -1);
+            }
+        }
+
+        if( isType ){
+            return result === isType.toLowerCase;
+        }
+
+        return result;
     }
 
     mix(N, {
@@ -313,6 +351,8 @@
         type : type
     });
 
+
+/************************** 遍历函数 **************************************/
 
     /** 遍历执行 each
     *   遍历执行迭代函数
@@ -537,6 +577,9 @@
         every : every,
         has : has
     });
+
+
+/************************** 节点方法 **************************************/
 
     function createNode( tagName, attrs ){
         var node = doc.createElement(tagName);
