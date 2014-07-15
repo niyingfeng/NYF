@@ -1,8 +1,7 @@
 // 简单的 N 框架
-// nyf 2013.7.1
 
 // 实现模块加载化
-// 以grunt来配合压缩所需模块文件 在此中为整体压缩
+
 
 (function(global, undefined){
     'use strict';
@@ -32,16 +31,15 @@
     // 简单的浏览器UA检测正则
     var regmsie = /(MSIE) ([\w.]+)/,
         regwebkit = /(AppleWebKit)[ \/]([\w.]+)/,
-        regmsie = /(Opera)([\w.]+)/,
-        regmsie = /(Gecko\/)([\w.]+)/,
-
-        // 处理模块id 进行规范化处理正则
-        regrname = /(?:\.?\/)?([\w\W]*\/)?([\w\W]*)/;
-
+        regOpera = /(Opera)([\w.]+)/,
+        regGecko = /(Gecko\/)([\w.]+)/;
 
 /********************************* 正则表达 *************************************/
     mix( N, {
-        sStringReg : /[^, ]+/g
+        sStringReg : /[^, ]+/g,
+
+        // 处理模块id 进行规范化处理正则
+        regRName : /(?:\.?\/)?([\w\W]*\/)?([\w\W]*)/
     });
 
 /********************************* 扩展继承 *************************************/
@@ -138,6 +136,7 @@
             if( i === undefined || type( array ) === 'string' || type( array ) === "function" ){
                 ret[0] = array;
             }else{
+                // 对于低版本的IE nodelist并不是继承于Object
                 if( array.item ){
                     while( i-- ){
                         ret[i] = array[i];
@@ -256,7 +255,7 @@
     *   
     */
     function dealname( name ){
-        var infoArr = regrname.exec(name);
+        var infoArr = N.regRName.exec(name);
         return{
             modelName : infoArr[2],
             modelUrl : absUrl + (infoArr[1]===undefined ? "/" : "/"+infoArr[1]) + infoArr[2] + ".js",
