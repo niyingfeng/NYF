@@ -7,9 +7,7 @@
     'use strict';
 
     // 大对象
-    var O_N = global.N, //原始的 N 对象or属性
-        N = global.N = {},
-        NID = N.NID = "N"+ (+new Date()),
+    var N = {},
 
         doc = global.document,
         userAgent = navigator.userAgent,
@@ -20,67 +18,54 @@
     var ArrayProto = Array.prototype,
         ObjectProto = Object.prototype,
         StringProto = String.prototype,
+
         toString = ObjectProto.toString,
         hasOwn = ObjectProto.hasOwnProperty,
-        slice = ArrayProto.slice,
-        trimFunc = StringProto.trim,
-        ltrimFunc = StringProto.trimLeft,
-        rtrimFunc = StringProto.trimRight;
+        slice = ArrayProto.slice;
 
-
-    // 简单的浏览器UA检测正则
-    var regmsie = /(MSIE) ([\w.]+)/,
-        regwebkit = /(AppleWebKit)[ \/]([\w.]+)/,
-        regOpera = /(Opera)([\w.]+)/,
-        regGecko = /(Gecko\/)([\w.]+)/;
-
-/********************************* 正则表达 *************************************/
-    mix( N, {
-        sStringReg : /[^, ]+/g,
-
-        // 处理模块id 进行规范化处理正则
-        regRName : /(?:\.?\/)?([\w\W]*\/)?([\w\W]*)/
-    });
 
 /********************************* 扩展继承 *************************************/
-    /** 对象扩展 extend
+    /** 对象扩展 mix
     *  
-    *   @method extend  不扩展原型属性
+    *   @method mix  不扩展原型属性
     *   @param {obj} receiver 可选 扩展的目标对象 如果无 则扩展到外围为对象（一般为 N）
     *   @param {obj} obj 必选 要扩展到目标对象的对象数据
     *   @param {boolean} ride 可选 主要是标识是否覆盖原有对象属性 默认为true
-    *   @param {boolean} deep 可选 主要是标识是否需要简单的深度拷贝 默认为true
+    *   @param {boolean} deep 可选 主要是标识是否需要简单的深度拷贝 默认为false
     *
     *   @return {Object} 返回目标对象
     *   
     */
-    function extend(receiver, obj){
+    function mix(receiver, obj){
         var args = slice.call(arguments), key, i = 1,
-            deep, ride;
+            deep, ride, value, valueType;
 
-        if( type(args[args.length-2]) === "boolean" ){
+        if( typeof args[args.length-2] === "boolean" ){
             deep = args.pop();
             ride = args.pop();
         }else{
-            ride = (type(args[args.length-1]) === "boolean")?args.pop():true;
-            deep = true;
-        }
-
-        if(args.length == 1){
-            receiver = ( this !== global ) ? this : {};
+            ride = (typeof args[args.length-1] === "boolean")?args.pop():true;
+            deep = false;
+            if(args.length < 2){
+                receiver = ( this !== global ) ? this : {};
+                if( args.length === 0 ){
+                    return receiver;
+                }
+            }
         }
 
         while( obj = args[ i++ ] ){
             for( key in obj ){
-                if(hasOwn.call(obj, key)){
-                    if( !ride && hasOwn.call(receiver,key) ){                    
-                        throw new Error("sorry "+key+" is already in the receiver object");
-                    }else{
-                        if( deep && (type(obj[key])==="object")){
+                if( hasOwn.call(obj, key) ){
+                    if( ride && !(key in  receiver) ){
+                        value = obj[key];
+                        valueType = type(value);
+                        if( deep && ( valueType==="object")){
                             receiver[key]={};
-                            extend(receiver[key], obj[key], ride, deep);
-                        }else if( deep && (type(obj[key])==="array" )){
-                            receiver[key] = obj[key].slice();
+                            mix(receiver[key], value, ride, deep);
+                        }else if( deep && ( valueType==="array" )){
+                            receiver[key]=[];
+                            mix(receiver[key], value, ride, deep);
                         }else{
                             receiver[key] = obj[key];
                         }
@@ -93,39 +78,105 @@
         return receiver;
     }
 
-    /** 对象扩展 mix
-    *   简单来说是属于extend的简单形式，不进行深度拷贝 并且目标对象为可选 默认当前调用对象
-    *   @method mix  主要适用于N内部的属性扩展简便方法
-    *   @param {obj} target 可选 扩展的目标对象
-    *   @param {obj} obj 必选（可有多个） 要扩展到目标对象的对象数据
-    *   
-    *   @return {Object} 返回目标对象
-    *   
-    */
-    function mix(target, obj){
-        var args = slice.call( arguments );
-        if( args.length === 1 ){
-            args.unshift( this );
-        }
-        args.push( true, false );
-        extend.apply(this, args)
-    }
-
-    // 用于使用来继承扩展对象
-    var createObject = (function(){
-        function F(){};
-        return function(obj){
-            F.prototype = obj;
-            F.prototype.constructor = obj;
-            return new F();     
-        }
-    }());
 
     mix(N, {
-        extend : extend,
+        version : "1.0.0",
+        NID : "N"+ (+new Date()),
+
+        sStringReg : /[^, ]+/g,
+
+        // 处理模块id 进行规范化处理正则
+        regRName : /(?:\.?\/)?([\w\W]*\/)?([\w\W]*)/,
+
         mix : mix,
-        createObject : createObject
+
+        createObject : function(){
+            // 用于使用来继承扩展对象
+            return function(obj){
+                function F(){};
+                F.prototype = obj;
+                F.prototype.constructor = obj;
+                return new F();     
+            }
+        }
     });
+
+
+
+
+/************************** 底层基础工具函数 **************************************/
+    /*   isArray  isFunction type  检测目标类型
+    *   each map  filter some every迭代循环
+    *   createNode 创建node对象
+    *   loadScript 加载脚本文件
+    *
+    *
+    */
+
+/************************** 类型判定 **************************************/
+    
+    // 类型判定对象
+    var class2type = {
+        "[objectHTMLDocument]" : "document",
+        "[objectHTMLCollection]" : "nodeList",
+        "[objectStaticNodeList]" : "nodeList",
+        "[objectIXMLDOMNodeList]" : "nodeList",
+        "null" : "null",
+        "NaN" : "NaN",
+        "undefined" : "undefined"
+    };
+
+    "Boolean, Number, String, Function, Array, Date, RegExp, Document, Arguments, NodeList"
+        .replace( N.sStringReg, function( type ){
+            class2type["[object " + type + "]"] = type.toLowerCase();
+        } );
+
+    // 是否为数组
+    function isArray( arr ){
+        return type( arr, "array" );
+    }
+
+    function isArrarLike( arr ){
+        var t = type( arr ),
+            len = arr.length;
+
+        return t === "array" || t !== "function" && 
+            ( len === 0 || len > 0 && ( len-1 ) in arr );
+    }
+
+    // 是否为函数
+    function isFunction( func ){
+         return type( arr, "function" );
+    }
+
+    // 类型判定
+    function type( obj, isType ){
+        var key = ((obj == null || obj !== obj ) ? obj + "" : toString.call( obj )),
+            result;
+        
+        if( typeof(result = class2type[ key ]) !== "string" ){
+            if( obj.nodeType === 9 ){
+                result = class2type["Document"];
+            }else if( obj.item && typeof obj.length === "number" ){
+                result = class2type["NodeList"];
+            }else{
+                result = key.slice(8, -1);
+            }
+        }
+
+        if( isType ){
+            return result === isType.toLowerCase;
+        }
+
+        return result;
+    }
+
+    mix(N, {
+        isArray : isArray,
+        isFunction : isFunction,
+        type : type
+    });
+
 
 
 /*********************************数组化*************************************/
@@ -272,81 +323,6 @@
         execute : execute,
         dealname : dealname,
         setAbsUrl : setAbsUrl
-    });
-
-
-
-    /************************** 底层基础工具函数 **************************************/
-    /*   isArray  isFunction type  检测目标类型
-    *   each map  filter some every迭代循环
-    *   createNode 创建node对象
-    *   loadScript 加载脚本文件
-    *
-    *
-    */
-
-/************************** 类型判定 **************************************/
-    
-    // 类型判定对象
-    var class2type = {
-        "[objectHTMLDocument]" : "document",
-        "[objectHTMLCollection]" : "nodeList",
-        "[objectStaticNodeList]" : "nodeList",
-        "[objectIXMLDOMNodeList]" : "nodeList",
-        "null" : "null",
-        "NaN" : "NaN",
-        "undefined" : "undefined"
-    };
-
-    "Boolean, Number, String, Function, Array, Date, RegExp, Document, Arguments, NodeList"
-        .replace( N.sStringReg, function( type ){
-            class2type["[object " + type + "]"] = type.toLowerCase();
-        } );
-
-    // 是否为数组
-    function isArray( arr ){
-        return type( arr, "array" );
-    }
-
-    function isArrarLike( arr ){
-        var t = type( arr ),
-            len = arr.length;
-
-        return t === "array" || t !== "function" && 
-            ( len === 0 || len > 0 && ( len-1 ) in arr );
-    }
-
-    // 是否为函数
-    function isFunction( func ){
-         return type( arr, "function" );
-    }
-
-    // 类型判定
-    function type( obj, isType ){
-        var key = ((obj == null || obj !== obj ) ? obj + "" : toString.call( obj )),
-            result;
-        
-        if( typeof(result = class2type[ key ]) !== "string" ){
-            if( obj.nodeType === 9 ){
-                result = class2type["Document"];
-            }else if( obj.item && typeof obj.length === "number" ){
-                result = class2type["NodeList"];
-            }else{
-                result = key.slice(8, -1);
-            }
-        }
-
-        if( isType ){
-            return result === isType.toLowerCase;
-        }
-
-        return result;
-    }
-
-    mix(N, {
-        isArray : isArray,
-        isFunction : isFunction,
-        type : type
     });
 
 
@@ -589,7 +565,8 @@
     }
 
     function loadScript(url, callback){
-        var node = createNode("script",{async:true,type:"text/javascript"}),
+        var var regmsie = /(MSIE) ([\w.]+)/,
+            node = createNode("script",{async:true,type:"text/javascript"}),
             head = loadScript.head = loadScript.head || doc.getElementsByTagName("head")[0];
 
         if( regmsie.test(userAgent) ){
@@ -626,7 +603,10 @@
     });
 
 
-    var trim, ltrim, rtrim;
+    var trim, ltrim, rtrim,
+        trimFunc = StringProto.trim,
+        ltrimFunc = StringProto.trimLeft,
+        rtrimFunc = StringProto.trimRight;;
 
     if( trimFunc ){
         trim = function( str ){ return str.trim(); };
@@ -647,6 +627,11 @@
 
     //global.define = N.define;
     //global.require = N.require;
+
+    N.mix({
+
+    });
+
         
 })(window);
 
