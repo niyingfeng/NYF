@@ -57,7 +57,7 @@
         while( obj = args[ i++ ] ){
             for( key in obj ){
                 if( hasOwn.call(obj, key) ){
-                    if( ride && !(key in  receiver) ){
+                    if( ride || !(key in  receiver) ){
                         value = obj[key];
                         valueType = type(value);
                         if( deep && ( valueType==="object")){
@@ -70,7 +70,6 @@
                             receiver[key] = obj[key];
                         }
                     }
-
                 }
             }
         }
@@ -78,18 +77,15 @@
         return receiver;
     }
 
-
     mix(N, {
         version : "1.0.0",
         NID : "N"+ (+new Date()),
 
         sStringReg : /[^, ]+/g,
-
         // 处理模块id 进行规范化处理正则
         regRName : /(?:\.?\/)?([\w\W]*\/)?([\w\W]*)/,
 
         mix : mix,
-
         createObject : function(){
             // 用于使用来继承扩展对象
             return function(obj){
@@ -98,6 +94,16 @@
                 F.prototype.constructor = obj;
                 return new F();     
             }
+        },
+
+        trim : function( str ){
+            return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g, '');
+        },
+        ltrim : function( str ){
+            return str.trimLeft ? str.trimLeft() : str.replace(/^\s+/g, '');
+        },
+        rtrim : function( str ){
+            return str.trimRight ? str.trimRight() : str.replace(/\s+$/g, '');
         }
     });
 
@@ -131,24 +137,6 @@
             class2type["[object " + type + "]"] = type.toLowerCase();
         } );
 
-    // 是否为数组
-    function isArray( arr ){
-        return type( arr, "array" );
-    }
-
-    function isArrarLike( arr ){
-        var t = type( arr ),
-            len = arr.length;
-
-        return t === "array" || t !== "function" && 
-            ( len === 0 || len > 0 && ( len-1 ) in arr );
-    }
-
-    // 是否为函数
-    function isFunction( func ){
-         return type( arr, "function" );
-    }
-
     // 类型判定
     function type( obj, isType ){
         var key = ((obj == null || obj !== obj ) ? obj + "" : toString.call( obj )),
@@ -160,50 +148,58 @@
             }else if( obj.item && typeof obj.length === "number" ){
                 result = class2type["NodeList"];
             }else{
-                result = key.slice(8, -1);
+                result = key.slice(8, -1).toLowerCase();
             }
         }
 
         if( isType ){
-            return result === isType.toLowerCase;
+            return result === isType.toLowerCase();
         }
 
         return result;
     }
 
-    mix(N, {
-        isArray : isArray,
-        isFunction : isFunction,
-        type : type
-    });
+    N.mix({
+        type : type,
 
+        isArray : function( arr ){
+            return type( arr, "array" );
+        },
 
+        isArrarLike : function( arr ){
+            var t = type( arr ),
+                len = arr.length;
 
-/*********************************数组化*************************************/
-    function toArray( array ){
-        var i, ret = [];
-        if( array != null ){
-            i = array.length;
-            if( i === undefined || type( array ) === 'string' || type( array ) === "function" ){
-                ret[0] = array;
-            }else{
-                // 对于低版本的IE nodelist并不是继承于Object
-                if( array.item ){
-                    while( i-- ){
-                        ret[i] = array[i];
-                    }
+            return t === "array" || t !== "function" && 
+                ( len === 0 || len > 0 && ( len-1 ) in arr );
+        },
+
+        isFunction : function( func ){
+             return type( arr, "function" );
+        },
+
+        // 数组化
+        toArray : function( array ){
+            var i, ret = [];
+            if( array != null ){
+                i = array.length;
+                if( i === undefined || type( array ) === 'string' || type( array ) === "function" ){
+                    ret[0] = array;
                 }else{
-                    ret = slice.call(array)
+                    // 对于低版本的IE nodelist并不是继承于Object
+                    if( array.item ){
+                        while( i-- ){
+                            ret[i] = array[i];
+                        }
+                    }else{
+                        ret = slice.call(array)
+                    }
                 }
             }
+            return ret;
         }
-
-        return ret;
-    }
-
-    mix(N, {
-        toArray : toArray
     });
+
 
 /**************************模块方面的***************************************/
 
@@ -603,33 +599,18 @@
     });
 
 
-    var trim, ltrim, rtrim,
-        trimFunc = StringProto.trim,
-        ltrimFunc = StringProto.trimLeft,
-        rtrimFunc = StringProto.trimRight;;
-
-    if( trimFunc ){
-        trim = function( str ){ return str.trim(); };
-        ltrim = function( str ){ return str.trimLeft(); }; 
-        rtrim = function( str ){ return str.trimRight(); };
-    }else{
-        trim = function( str ){ return str.replace(/^\s+|\s+$/g, '') };
-        ltrim = function( str ){ return str.replace(/^\s+/g, '') }; 
-        rtrim = function( str ){ return str.replace(/\s+$/g, '') };
-    }
-
-    mix(N, {
-        trim : trim,
-        ltrim : ltrim,
-        rtrim : rtrim
-    });
-
-
     //global.define = N.define;
     //global.require = N.require;
 
-    N.mix({
+    var _N = global.N;
+    global.N = N;
 
+    N.mix({
+        noConflict : function(){
+            global.N = _N;
+
+            return N;
+        }
     });
 
         
