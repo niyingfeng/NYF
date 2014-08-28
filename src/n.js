@@ -8,11 +8,14 @@
 
     // 大对象
     var N = {},
+        _N = global.N
 
         doc = global.document,
         userAgent = navigator.userAgent,
         host = location.protocol,
-        absUrl = location.origin;
+        absUrl = location.origin,
+
+        isW3C = ( doc.dispatchEvent !== false);
 
     // 原型方法引用
     var ArrayProto = Array.prototype,
@@ -602,10 +605,84 @@
     //global.define = N.define;
     //global.require = N.require;
 
-    var _N = global.N;
     global.N = N;
 
     N.mix({
+
+        // 简单的 ready 方法
+        ready : function( fn ){
+
+            var isReady, isInited;
+
+            function domReady(){
+
+                if( isReady ) return;
+
+                isReady = true;
+
+                fn();
+            }
+            // 移除所有有关事件句柄 compeleted 的绑定事件
+            function detach() { 
+                if ( doc.addEventListener ) { 
+                    doc.removeEventListener( "DOMContentLoaded", completed, false ); 
+                    global.removeEventListener( "load", completed, false ); 
+                } else { 
+                    doc.detachEvent( "onreadystatechange", completed ); 
+                    global.detachEvent( "onload", completed ); 
+                } 
+            } 
+
+            // 对于已经过了 domReady 时间点
+            function completed() { 
+                // 标准浏览器 或者 为 IE下的load事件 或者 ready 状态为 complete（IE） 
+                if ( doc.addEventListener || event.type === "load" || document.readyState === "complete" ) { 
+                    detach(); 
+                    domReady(); 
+                } 
+            } 
+
+            if( isInited || doc.readyState === 'complete' ){
+                // 暂时对 isInited 的情况简单处理
+                setTimeOut(function(){
+                    fn();
+                });
+            }else{
+                
+                if( isW3C ){
+                    doc.addEventListener( "DOMContentLoaded", completed, false ); 
+                    global.addEventListener( "load", completed, false ); 
+                }else{
+                    doc.attachEvent( "onreadystatechange", completed ); 
+                    global.attachEvent( "onload", completed ); 
+
+                    // IE的 doScroll 方式检测
+                    var top = false; 
+                    try { 
+                        top = global.frameElement == null && doc.documentElement; 
+                    } catch(e) {} 
+
+                    if ( top && top.doScroll ) { 
+                        (function doScrollCheck() { 
+                            if ( !isReady ) { 
+                                try { 
+                                    top.doScroll("left"); 
+                                } catch(e) { 
+                                    return setTimeout( doScrollCheck, 50 ); 
+                                } 
+
+                                detach(); 
+                                domReady(); 
+                            } 
+                        })(); 
+                    } 
+                } 
+                
+            }
+
+            isInited = true;
+
+        },
         noConflict : function(){
             global.N = _N;
 
