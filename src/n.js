@@ -7,10 +7,11 @@
     'use strict';
 
     // 大对象
-    var N = {},
-        _N = global.N
+    var _N = global.N,
+        global.N = N = {},
 
         doc = global.document,
+        head = doc.header || doc.getElementsByTagName("head")[0],
         userAgent = navigator.userAgent,
         host = location.protocol,
         absUrl = location.origin,
@@ -521,26 +522,6 @@
         return flog;
     }
 
-    // 关于对象类型的均不采用鸭子辨别法 只用全等
-    function has( array, item ){
-        var value,i,len;
-        if(array == null) return;
-
-        if( isArray(array) ){
-            for(i=0, len=array.length; i<len; i++){
-                if( array[i] === item ){
-                    return true;
-                }         
-            }
-        }else{
-            for(var key in array){
-                if(hasOwn.call(array, key)){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     mix(N, {
         each : each,
@@ -548,7 +529,27 @@
         filter : filter,
         some : some,
         every : every,
-        has : has
+
+        // 关于对象类型的均不采用鸭子辨别法 只用全等
+        has : function( array, item ){
+            var value,i,len;
+            if(array == null) return;
+
+            if( type(array) === 'array' ){
+                for(i=0, len=array.length; i<len; i++){
+                    if( array[i] === item ){
+                        return true;
+                    }         
+                }
+            }else{
+                for(var key in array){
+                    if(hasOwn.call(array, key)){
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     });
 
 
@@ -563,51 +564,37 @@
         return node;
     }
 
-    function loadScript(url, callback){
-        var var regmsie = /(MSIE) ([\w.]+)/,
-            node = createNode("script",{async:true,type:"text/javascript"}),
-            head = loadScript.head = loadScript.head || doc.getElementsByTagName("head")[0];
+    N.mix({
+        createNode : createNode,
+        loadScript : function(url, callback){
+            var regmsie = /(MSIE) ([\w.]+)/,
+                node = createNode("script",{async:true,type:"text/javascript"});
 
-        if( regmsie.test(userAgent) ){
-            node.onreadystatechange = function(){
-                if(/complete|loaded/.test(node.readyState)){
-                    node.onreadystatechange = null;
+            if( regmsie.test(userAgent) ){
+                node.onreadystatechange = function(){
+                    if(/complete|loaded/.test(node.readyState)){
+                        node.onreadystatechange = null;
+                        callback();
+                    }
+                }
+            }else{
+                node.onload = function(){
                     callback();
                 }
             }
-        }else{
-            node.onload = function(){
-                callback();
-            }
-        }
 
-        node.src = url;
-        head.appendChild(node);
-    }
+            node.src = url;
+            head.appendChild(node);
+        },
 
-    // 由于火狐浏览器不支持link的onload事件，所以做回调较为复杂，需要轮询检测（lazyload中学到）
-    // 并且对于css的话 回调函数意义不大，只提供异步加载功能
-    function loadCss(url){
-        var node = createNode("link",{rel:"stylesheet",type:"text/css"}),
-            head = loadCss.head = loadCss.head || doc.getElementsByTagName("head")[0];
+        // 由于火狐浏览器不支持link的onload事件，所以做回调较为复杂，需要轮询检测（lazyload中学到）
+        // 并且对于css的话 回调函数意义不大，只提供异步加载功能
+        loadCss : function(url){
+            var node = createNode("link",{rel:"stylesheet",type:"text/css"}),
+            node.href = url;
+            head.appendChild(node);
+        },
 
-        node.href = url;
-        head.appendChild(node);
-    }
-
-    mix(N, {
-        createNode : createNode,
-        loadScript : loadScript,
-        loadCss : loadCss
-    });
-
-
-    //global.define = N.define;
-    //global.require = N.require;
-
-    global.N = N;
-
-    N.mix({
 
         // 简单的 ready 方法
         ready : function( fn ){
@@ -683,6 +670,7 @@
             isInited = true;
 
         },
+
         noConflict : function(){
             global.N = _N;
 
@@ -690,6 +678,10 @@
         }
     });
 
+
+
+    global.define = N.define;
+    global.require = N.require;
         
 })(window);
 
