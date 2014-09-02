@@ -349,7 +349,7 @@
 
         if(forEach && array.forEach === forEach){
             array.forEach(iterator, context);
-        }else if( isArray(array) ){
+        }else if( type(array) === 'array' ){
             for(i=0, len=array.length; i<len; i++){
                 iterator.call(context, array[i], i, array);            
             }
@@ -362,173 +362,168 @@
         }
     }
 
-    /** 遍历执行 map
-    *   遍历执行迭代函数并返回执行结果
-    *  
-    *   @method map
-    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
-    *   @param {Array|Object} iterator 必选 需要迭代执行的函数
-    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
-    *
-    *   @return {Array} 返回执行结果数组
-    *   
-    */
-    function map( array, iterator, context ){
-        var value,i,len,newArr,
-            map = ArrayProto.map;
-
-        context = context||this;
-
-        if(array == null) return;
-
-        if(map && array.map === map){
-            return array.map(iterator, context);
-        }else if( isArray(array) ){
-            newArr = [];
-            for(i=0, len=array.length; i<len; i++){
-                newArr.push(iterator.call(context, array[i], i, array));            
-            }
-        }else{
-            newArr = {};
-            for(var key in array){
-                if(hasOwn.call(array, key)){
-                    newArr[key] = iterator.call(context, array[key], key, array);
-                }
-            }
-        }
-        return newArr;
-    }
-
-    /** 遍历判断 filter
-    *   遍历执行迭代函数并返回符合函数条件的结果数组
-    *  
-    *   @method map
-    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
-    *   @param {Array|Object} iterator 必选 需要进行判断的函数
-    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
-    *
-    *   @return {Array} 返回符合条件结果数组
-    *   
-    */
-    function filter( array, iterator, context ){
-        var value,i,len,newArr,
-            filter = ArrayProto.filter;
-
-        context = context||this;
-
-        if(array == null) return;
-
-        if(filter && array.filter === filter){
-            return array.filter(iterator, context);
-        }else if( isArray(array) ){
-            newArr = [];
-            for(i=0, len=array.length; i<len; i++){
-                if( iterator.call(context, array[i], i, array) ){
-                    newArr.push( array[i] );
-                }          
-            }
-        }else{
-            newArr = {};
-            for(var key in array){
-                if(hasOwn.call(array, key)){
-                    if( iterator.call(context, array[key], key, array) ){
-                        newArr[key] = array[key];
-                    }
-                }
-            }
-        }
-        return newArr;
-    }
-
-    /** 是否有符合条件的结果 some
-    *   遍历执行迭代函数并返回true 或者 false
-    *  
-    *   @method map
-    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
-    *   @param {Array|Object} iterator 必选 需要进行判断的函数
-    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
-    *
-    *   @return {bolean} 返回时候有item符合条件
-    *   
-    */
-    function some( array, iterator, context ){
-        var value,i,len, flog = false,
-            some = ArrayProto.some;
-
-        context = context||this;
-
-        if(array == null) return;
-
-        if(some && array.some === some){
-            return array.some(iterator, context);
-        }else if( isArray(array) ){
-            for(i=0, len=array.length; i<len; i++){
-                if( iterator.call(context, array[i], i, array) === true ){
-                    flog = true;
-                    break;
-                }          
-            }
-        }else{
-            for(var key in array){
-                if(hasOwn.call(array, key)){
-                    if( iterator.call(context, array[key], key, array) === true ){
-                        flog = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return flog;
-    }
-
-    /** 是否所有符合条件 every
-    *   遍历执行迭代函数并返回true 或者 false
-    *  
-    *   @method map
-    *   @param {Array|Object} arr 必选 需要遍历的数组或者对象
-    *   @param {Array|Object} iterator 必选 需要进行判断的函数
-    *   @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
-    *
-    *   @return {bolean} 返回是否所有item符合条件
-    *   
-    */
-    function every( array, iterator, context ){
-        var value,i,len, flog = true,
-            every = ArrayProto.every;
-
-        context = context||this;
-
-        if(array == null) return;
-
-        if(every && array.every === every){
-            return array.every(iterator, context);
-        }else if( isArray(array) ){
-            for(i=0, len=array.length; i<len; i++){
-                if( iterator.call(context, array[i], i, array) === false ){
-                    flog = false;
-                    break;
-                }          
-            }
-        }else{
-            for(var key in array){
-                if(hasOwn.call(array, key)){
-                    if( iterator.call(context, array[key], key, array) === false ){
-                        flog = false;
-                        break;
-                    }
-                }
-            }
-        }
-        return flog;
-    }
+    
+        
 
 
     mix(N, {
         each : each,
-        map : map,
-        filter : filter,
-        some : some,
-        every : every,
+
+        /** 遍历执行 map
+         *  遍历执行迭代函数并返回执行结果
+         * 
+         *  @method map
+         *  @param {Array|Object} arr 必选 需要遍历的数组或者对象
+         *  @param {Array|Object} iterator 必选 需要迭代执行的函数
+         *  @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+         *
+         *  @return {Array} 返回执行结果数组
+         *   
+        */
+        map : function map( array, iterator, context ){
+            var value,i,len,newArr,
+                map = ArrayProto.map;
+
+            context = context||this;
+
+            if(array == null) return;
+
+            if(map && array.map === map){
+                return array.map(iterator, context);
+            }else if( type(array, 'array') ){
+                newArr = [];
+                for(i=0, len=array.length; i<len; i++){
+                    newArr.push(iterator.call(context, array[i], i, array));            
+                }
+            }else{
+                newArr = {};
+                for(var key in array){
+                    if(hasOwn.call(array, key)){
+                        newArr[key] = iterator.call(context, array[key], key, array);
+                    }
+                }
+            }
+            return newArr;
+        },
+
+        /** 遍历判断 filter
+         *  遍历执行迭代函数并返回符合函数条件的结果数组
+         * 
+         *  @method map
+         *  @param {Array|Object} arr 必选 需要遍历的数组或者对象
+         *  @param {Array|Object} iterator 必选 需要进行判断的函数
+         *  @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+         *
+         *  @return {Array} 返回符合条件结果数组
+         *   
+        */
+        filter : function( array, iterator, context ){
+            var value,i,len,newArr,
+                filter = ArrayProto.filter;
+
+            context = context||this;
+
+            if(array == null) return;
+
+            if(filter && array.filter === filter){
+                return array.filter(iterator, context);
+            }else if( type(array, 'array') ){
+                newArr = [];
+                for(i=0, len=array.length; i<len; i++){
+                    if( iterator.call(context, array[i], i, array) ){
+                        newArr.push( array[i] );
+                    }          
+                }
+            }else{
+                newArr = {};
+                for(var key in array){
+                    if(hasOwn.call(array, key)){
+                        if( iterator.call(context, array[key], key, array) ){
+                            newArr[key] = array[key];
+                        }
+                    }
+                }
+            }
+            return newArr;
+        },
+
+        /** 是否有符合条件的结果 some
+         *  遍历执行迭代函数并返回true 或者 false
+         * 
+         *  @method map
+         *  @param {Array|Object} arr 必选 需要遍历的数组或者对象
+         *  @param {Array|Object} iterator 必选 需要进行判断的函数
+         *  @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+         *
+         *  @return {bolean} 返回时候有item符合条件
+         *   
+        */
+        some : function( array, iterator, context ){
+            var value,i,len,
+                some = ArrayProto.some;
+
+            context = context||this;
+
+            if(array == null) return;
+
+            if(some && array.some === some){
+                return array.some(iterator, context);
+            }else if( type(array, 'array') ){
+                for(i=0, len=array.length; i<len; i++){
+                    if( iterator.call(context, array[i], i, array) === true ){
+                        return true;
+                    }          
+                }
+            }else{
+                for(var key in array){
+                    if(hasOwn.call(array, key)){
+                        if( iterator.call(context, array[key], key, array) === true ){
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        },
+
+        /** 是否所有符合条件 every
+         *  遍历执行迭代函数并返回true 或者 false
+         * 
+         *  @method map
+         *  @param {Array|Object} arr 必选 需要遍历的数组或者对象
+         *  @param {Array|Object} iterator 必选 需要进行判断的函数
+         *  @param {Array|Object} context 非必选 迭代函数执行的上下文 默认为N
+         *
+         *  @return {bolean} 返回是否所有item符合条件
+         *   
+        */
+        every : function( array, iterator, context ){
+            var value,i,len,
+                every = ArrayProto.every;
+
+            context = context||this;
+
+            if(array == null) return;
+
+            if(every && array.every === every){
+                return array.every(iterator, context);
+            }else if( type(array, 'array') ){
+                for(i=0, len=array.length; i<len; i++){
+                    if( iterator.call(context, array[i], i, array) === false ){
+                        return false;
+                    }          
+                }
+            }else{
+                for(var key in array){
+                    if(hasOwn.call(array, key)){
+                        if( iterator.call(context, array[key], key, array) === false ){
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        },
 
         // 关于对象类型的均不采用鸭子辨别法 只用全等
         has : function( array, item ){
@@ -543,7 +538,7 @@
                 }
             }else{
                 for(var key in array){
-                    if(hasOwn.call(array, key)){
+                    if(hasOwn.call(array, key) && array[key] === item){
                         return true;
                     }
                 }
@@ -594,7 +589,6 @@
             node.href = url;
             head.appendChild(node);
         },
-
 
         // 简单的 ready 方法
         ready : function( fn ){
