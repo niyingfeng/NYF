@@ -8,7 +8,7 @@
 
     // 大对象
     var _N = global.N,
-        global.N = N = {},
+         N = global.N = {},
 
         doc = global.document,
         head = doc.header || doc.getElementsByTagName("head")[0],
@@ -26,6 +26,26 @@
         toString = ObjectProto.toString,
         hasOwn = ObjectProto.hasOwnProperty,
         slice = ArrayProto.slice;
+
+    // 类型判定对象
+    var class2type = {
+            "[object HTMLDocument]" : "document",
+            "[object global]" : "window",
+            "[object HTMLCollection]" : "nodeList",
+            "[object StaticNodeList]" : "nodeList",
+            "[object IXMLDOMNodeList]" : "nodeList",
+            "null" : "null",
+            "NaN" : "NaN",
+            "undefined" : "undefined",
+
+            "Document" : 'document',
+            "Element" : 'element'
+        };
+
+    "Boolean, Number, String, Function, Array, Date, RegExp, Document, Element, Arguments, NodeList"
+        .replace( /[^, ]+/g , function( type ){
+            class2type["[object " + type + "]"] = type.toLowerCase();
+        } );
 
 
 /********************************* 扩展继承 *************************************/
@@ -50,11 +70,13 @@
         }else{
             ride = (typeof args[args.length-1] === "boolean")?args.pop():true;
             deep = false;
-            if(args.length < 2){
-                receiver = ( this !== global ) ? this : {};
-                if( args.length === 0 ){
-                    return receiver;
-                }
+        }
+
+        if(args.length < 2){
+            receiver = ( this !== global ) ? this : {};
+            i = 0;
+            if( args.length === 0 ){
+                return receiver;
             }
         }
 
@@ -112,8 +134,6 @@
     });
 
 
-
-
 /************************** 底层基础工具函数 **************************************/
     /*   isArray  isFunction type  检测目标类型
     *   each map  filter some every迭代循环
@@ -123,23 +143,8 @@
     *
     */
 
-/************************** 类型判定 **************************************/
-    
-    // 类型判定对象
-    var class2type = {
-        "[objectHTMLDocument]" : "document",
-        "[objectHTMLCollection]" : "nodeList",
-        "[objectStaticNodeList]" : "nodeList",
-        "[objectIXMLDOMNodeList]" : "nodeList",
-        "null" : "null",
-        "NaN" : "NaN",
-        "undefined" : "undefined"
-    };
 
-    "Boolean, Number, String, Function, Array, Date, RegExp, Document, Arguments, NodeList"
-        .replace( N.sStringReg, function( type ){
-            class2type["[object " + type + "]"] = type.toLowerCase();
-        } );
+/************************** 类型判定 **************************************/
 
     // 类型判定
     function type( obj, isType ){
@@ -149,6 +154,8 @@
         if( typeof(result = class2type[ key ]) !== "string" ){
             if( obj.nodeType === 9 ){
                 result = class2type["Document"];
+            }else if(obj.nodeType === 1){
+                result = class2type["Element"];
             }else if( obj.item && typeof obj.length === "number" ){
                 result = class2type["NodeList"];
             }else{
@@ -362,11 +369,7 @@
         }
     }
 
-    
-        
-
-
-    mix(N, {
+    N.mix({
         each : each,
 
         /** 遍历执行 map
@@ -585,7 +588,7 @@
         // 由于火狐浏览器不支持link的onload事件，所以做回调较为复杂，需要轮询检测（lazyload中学到）
         // 并且对于css的话 回调函数意义不大，只提供异步加载功能
         loadCss : function(url){
-            var node = createNode("link",{rel:"stylesheet",type:"text/css"}),
+            var node = createNode("link",{rel:"stylesheet",type:"text/css"});
             node.href = url;
             head.appendChild(node);
         },

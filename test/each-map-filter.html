@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 
-<script src="../build/n.dev.js"></script>
+<script src="../src/n.js"></script>
 
 </head>
 <body>
@@ -14,8 +14,8 @@ TEST
 
 var a = [1,2,3,4,5],b={a:1,b:2,c:3,d:4,e:5}
 
-console.log( N.each(a,function(n,i){ return n+i }));
-console.log( N.each(b,function(n,i){ return n+i }));
+console.log( N.each(a,function(n,i){ console.log(n+i) }));
+console.log( N.each(b,function(n,i){ console.log(n+i) }));
 console.log(a);
 console.log(b);
 
@@ -26,6 +26,13 @@ console.log(b);
 
 console.log( N.filter(a,function(n,i){ return n>2 }));
 console.log( N.filter(b,function(n,i){ return n>2 }));
+console.log(a);
+console.log(b);
+
+console.log( N.every(a,function(n,i){ return n>2 }));
+console.log( N.every(b,function(n,i){ return n>2 }));
+console.log( N.some(a,function(n,i){ return n>2 }));
+console.log( N.some(b,function(n,i){ return n>2 }));
 console.log(a);
 console.log(b);
 
