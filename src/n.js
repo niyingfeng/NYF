@@ -14,7 +14,7 @@
         head = doc.header || doc.getElementsByTagName("head")[0],
         userAgent = navigator.userAgent,
         host = location.protocol,
-        absUrl = location.origin,
+        absUrl = location.origin, // 初始的模块化 base 路径
 
         isW3C = ( doc.dispatchEvent !== false);
 
@@ -36,10 +36,7 @@
             "[object IXMLDOMNodeList]" : "nodeList",
             "null" : "null",
             "NaN" : "NaN",
-            "undefined" : "undefined",
-
-            "Document" : 'document',
-            "Element" : 'element'
+            "undefined" : "undefined"
         };
 
     "Boolean, Number, String, Function, Array, Date, RegExp, Document, Element, Arguments, NodeList"
@@ -109,7 +106,7 @@
 
         sStringReg : /[^, ]+/g,
         // 处理模块id 进行规范化处理正则
-        regRName : /(?:\.?\/)?([\w\W]*\/)?([\w\W]*)/,
+        regRName : /(\.?\/)?([\w\W]*\/)?([\w\W]*)/,
 
         mix : mix,
         createObject : function(){
@@ -153,11 +150,11 @@
         
         if( typeof(result = class2type[ key ]) !== "string" ){
             if( obj.nodeType === 9 ){
-                result = class2type["Document"];
+                result = class2type["object HTMLDocument"];
             }else if(obj.nodeType === 1){
-                result = class2type["Element"];
+                result = class2type["object Element"];
             }else if( obj.item && typeof obj.length === "number" ){
-                result = class2type["NodeList"];
+                result = class2type["object NodeList"];
             }else{
                 result = key.slice(8, -1).toLowerCase();
             }
@@ -222,13 +219,13 @@
     *   处理一下 2 种情况 参数
     *  
     *   @method define
-    *   @param {String} name 必选 模块名称
+    *   @param {String} name 可选 模块名称
     *   @param {Array} deps 可选 依赖关系模块
     *   @param {Function} wrap 必选 模块函数实现
     *   @return {Object} 返回模块信息对象
     *   
     */
-    function define(name, deps, wrap){
+    Model.define = function(name, deps, wrap){
         var modelInfo = dealname(name),
             name = modelInfo["modelName"],
             model = modelLoaded[name];
@@ -261,7 +258,7 @@
     *   @return {Object} 返回模块执行完毕对象
     *   
     */
-    function execute( name ){
+    Model.execute = function( name ){
         var mExports = [],
 
             modelInfo = dealname(name),
@@ -276,7 +273,7 @@
             // 应使用回调 加载完毕后 继续execute方法
             // return loadscript( modelUrl(name), execute(name) );
             console.log(name+" 文件构建有误，重新加载文件！");
-            loadScript(url, function(){ 
+            N.loadScript(url, function(){ 
                 execute( name ); 
                 console.log(name+" 文件加载运行完成！"); 
             });
@@ -294,15 +291,10 @@
         return model;
     }
 
-    function require( name ){
+    Model.require = function( name ){
         return execute(name);
     }
 
-    Model = {
-        define : define,
-        require : require,
-        execute : execute
-    }
 
     /** 规范化模块名 realname
     *   对于有地址信息的模块，提取出规范的模块名称
@@ -314,14 +306,15 @@
     */
     function dealname( name ){
         var infoArr = N.regRName.exec(name);
+
         return{
-            modelName : infoArr[2],
-            modelUrl : absUrl + (infoArr[1]===undefined ? "/" : "/"+infoArr[1]) + infoArr[2] + ".js",
+            modelName : infoArr[3],
+            modelUrl : absUrl + (infoArr[2]===undefined ? "" : infoArr[2]) + infoArr[3] + ".js",
         }
     }
 
     function setAbsUrl( url ){
-        absUrl =/http|ftp|file/.test(url) ? url : host + "//" + url;
+        absUrl =(/http|ftp|file/.test(url) ? url : host + "//" + url).replace(/\/\/?$/, '') + "/";
     }
 
     mix(N, {

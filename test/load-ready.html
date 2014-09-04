@@ -13,7 +13,12 @@ TEST
 <script type="text/javascript">
 
 N.ready(function(){
-    console.log(1)
+    console.log(1);
+    N.loadScript('http://code.jquery.com/jquery-1.11.1.js?random='+Math.random, function(){
+        console.log('jqery loaded');
+    });
+
+    N.loadCss('http://public.blogbus.com/blogbus/skin_css/v1/53/46/634653.css');
 });
 
 </script>
