@@ -13,8 +13,6 @@
         doc = global.document,
         head = doc.header || doc.getElementsByTagName("head")[0],
         userAgent = navigator.userAgent,
-        host = location.protocol,
-        absUrl = location.origin, // 初始的模块化 base 路径
 
         isW3C = ( doc.dispatchEvent !== false);
 
@@ -213,13 +211,36 @@
 
     var Model, // 公共接口对象（公共接口集） 
         modelLoaded = {},     // 已经加载的模块（加载的未执行的模块信息集）
-        modelMap = {};        // 已经执行的模块脚本返回的对象（模块结果集）    
+        modelMap = {},        // 已经执行的模块脚本返回的对象（模块结果集）    
+
+        host = location.protocol,
+        absUrl, // 初始的模块化 base 路径
+
+    // 简单的获取一下script的链接url
+    (function(){
+        var scriptDoms = doc.getElementsByTagName('script'),
+            len = scriptDoms.length,
+            i = 0, scriptUrl, arr;
+
+        while( absUrl === undefined && i < len ){
+            if( scriptUrl = scriptDoms[i].src ){
+                arr = scriptUrl.split('/');
+                arr.pop();
+                absUrl = arr.join('/') + '/';
+            }
+            i++;
+        }
+
+        if( absUrl === undefined  ){
+            absUrl = location.origin;
+        }
+    })();
 
     /** 模块定义 define
     *   处理一下 2 种情况 参数
     *  
     *   @method define
-    *   @param {String} name 可选 模块名称
+    *   @param {String} name 必选 模块名称
     *   @param {Array} deps 可选 依赖关系模块
     *   @param {Function} wrap 必选 模块函数实现
     *   @return {Object} 返回模块信息对象
