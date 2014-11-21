@@ -2,7 +2,6 @@
 
 // 实现模块加载化
 
-
 (function(global, undefined){
     'use strict';
 
@@ -212,6 +211,7 @@
     var Model, // 公共接口对象（公共接口集） 
         modelLoaded = {},     // 已经加载的模块（加载的未执行的模块信息集）
         modelMap = {},        // 已经执行的模块脚本返回的对象（模块结果集）    
+        requireDepReg = /N\.require\(\s*['"]([^'"\s]+)['"]\s*\)/, // 获取define第三参数函数的内部N.require加载的模块
 
         host = location.protocol,
         absUrl, // 初始的模块化 base 路径
@@ -238,7 +238,7 @@
 
     /** 模块定义 define
     *   处理一下 2 种情况 参数
-    *  
+    *   不考虑循环依赖以及其他情况后期调整
     *   @method define
     *   @param {String} name 必选 模块名称
     *   @param {Array} deps 可选 依赖关系模块
@@ -246,13 +246,14 @@
     *   @return {Object} 返回模块信息对象
     *   
     */
-    Model.define = function(name, deps, wrap){
+    var define = function(name, deps, wrap){
         var modelInfo = dealname(name),
             name = modelInfo["modelName"],
-            model = modelLoaded[name];
+            modelload = modelLoaded[name];
 
-        if( model ){
-            return model;
+        if( modelload ){
+            N.console.log( name + " is defined !");
+            return modelload;
         }
 
         if( !wrap ){
@@ -260,15 +261,21 @@
             deps = [];     
         }
 
-        model = {
+        if(wrap){
+            wrap.toString().replace( requireDepReg, function(match, dep){
+                deps.push(dep);
+            });
+        }
+
+        modelload = {
             name : name,
             deps : deps,
             wrap : wrap
         }
 
-        modelLoaded[name] = model;
-        return model;
-    }
+        modelLoaded[name] = modelload;
+        return modelload;
+    },
 
     // 
     /** 模块预执行 execute
@@ -279,7 +286,7 @@
     *   @return {Object} 返回模块执行完毕对象
     *   
     */
-    Model.execute = function( name ){
+    execute = function( name ){
         var mExports = [],
 
             modelInfo = dealname(name),
@@ -293,13 +300,14 @@
             // 需要加载模块文件 loadscript
             // 应使用回调 加载完毕后 继续execute方法
             // return loadscript( modelUrl(name), execute(name) );
-            console.log(name+" 文件构建有误，重新加载文件！");
+            N.console.log(name+" 文件构建有误，重新加载文件！");
             N.loadScript(url, function(){ 
                 execute( name ); 
                 console.log(name+" 文件加载运行完成！"); 
             });
 
         }else if( model ){
+            N.console.log( name + " is defined !");
             return model;
         }else{
             each( modelload.deps, function(dep){
@@ -312,8 +320,17 @@
         return model;
     }
 
-    Model.require = function( name ){
-        return execute(name);
+    require = function( deps, wrap ){
+        var models = [];
+        if( wrap === undefined ){
+            wrap = deps;
+            deps = [];
+        }
+        each( deps, function(dep){
+            models.push( execute( dep ) );
+        });
+
+        wrap.apply( null, models );
     }
 
 
@@ -562,6 +579,35 @@
             }
             return false;
         }
+    });
+
+ 
+/**************************  调试方法 *************************************/
+    /*
+    *   简单的一个console兼容方法
+    *
+    */
+    var console = (function(){
+        var con = global.console,
+            alert,alertFun;
+        if( con === undefined ){
+            alert = global.alert;
+            alertFun = function( type ){
+                return function( msg ){
+                    alert( type +' : '+ msg );
+                }
+            };
+            con = {
+                log : alertFun('log'),
+                error : alertFun('error')
+            }
+        }
+
+        return con;
+    })();
+
+    N.mix({
+        console : console
     });
 
 
