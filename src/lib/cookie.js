@@ -40,8 +40,8 @@ N.define( "cookie", function(){
                 return decodeURIComponent(pair[1]);  
 
             }
-            return "";
         }
+        return "";
 
     }
 
